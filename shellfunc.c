@@ -370,15 +370,28 @@ void Cmd_stat (char* tr[]){
                 perror("Impossible to access file or directory");
             } else{ 
                 if (statlong){
-                    printf ("1. Last statuschange   2. Blocks allocated   3. (I-node number)   4. Ownership   5. File size\n");
-                    printf ("%s    ", statbuf.st_ctime);
+                    printf ("1. Last status change   2. Link count   3. (I-node number)   4. Ownership   5.Permissions   6. File size\n");
+                    printf ("%s  %ld (%ld)   %lld", statbuf.st_mtime, (long) statbuf.st_nlink, (long) statbuf.st_ino, (long long) statbuf.st_size);
                 }
                 if (acc){
                     printf("Last file access: %s", ctime(&statbuf.st_atime));
                 }
                 if (link){
-                    printf()
+                    printf("lalala");
                 }
+
+
+                printf("I-node number:            %ld\n", (long) statbuf.st_ino);
+                printf("Mode:                     %lo (octal)\n", (unsigned long) statbuf.st_mode);
+                printf("Link count:               %ld\n", (long) statbuf.st_nlink);
+                printf("Ownership:                UID=%ld   GID=%ld\n", (long) statbuf.st_uid, (long) statbuf.st_gid);
+                printf("Preferred I/O block size: %ld bytes\n", (long) statbuf.st_blksize);
+                printf("File size:                %lld bytes\n", (long long) statbuf.st_size);
+                printf("Blocks allocated:         %lld\n", (long long) statbuf.st_blocks);
+                printf("Last status change:       %s", ctime(&statbuf.st_ctime));
+                printf("Last file access:         %s", ctime(&statbuf.st_atime));
+                printf("Last file modification:   %s", ctime(&statbuf.st_mtime));
+
             }
         }
     }
@@ -397,20 +410,3 @@ void Cmd_deltree (char* tr[]){
 }
 
 
-
-
-
-
-
-
-
-printf("I-node number:            %ld\n", (long) sb.st_ino);
-printf("Mode:                     %lo (octal)\n", (unsigned long) sb.st_mode);
-printf("Link count:               %ld\n", (long) sb.st_nlink);
-printf("Ownership:                UID=%ld   GID=%ld\n", (long) sb.st_uid, (long) sb.st_gid);
-printf("Preferred I/O block size: %ld bytes\n", (long) sb.st_blksize);
-printf("File size:                %lld bytes\n", (long long) sb.st_size);
-printf("Blocks allocated:         %lld\n", (long long) sb.st_blocks);
-printf("Last status change:       %s", ctime(&sb.st_ctime));
-printf("Last file access:         %s", ctime(&sb.st_atime));
-printf("Last file modification:   %s", ctime(&sb.st_mtime));
