@@ -25,3 +25,7 @@ void Cmd_open (char * tr[], List2* openFiles);
 void Cmd_close (char *tr[], List2* openFiles);
 void Cmd_dup (char * tr[], List2* openFiles);
 void Cmd_create(char * tr[]);
+void Cmd_stat(char* tr[]);
+void Cmd_list (char* tr[]);
+void Cmd_delete (char* tr[]);
+void Cmd_deltree (char* tr[]);

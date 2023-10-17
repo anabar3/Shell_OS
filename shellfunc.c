@@ -25,6 +25,7 @@ void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles){ //Tak
             {"help",Cmd_help},
             {"infosys", Cmd_infosys},
             {"create", Cmd_create},
+            {"stat", Cmd_stat},
             {NULL,NULL}
     };
 
@@ -177,7 +178,7 @@ void Cmd_help (char* tr[]){
     };
 
     static struct Help H[]={
-            {"authors",": Prints the names and logins of the program authors.\n"
+            {"authors [-l]",": Prints the names and logins of the program authors.\n"
                        "-l : prints only the logins and authors\n-n : prints only the names"},
 
             {"quit", ": Ends the shell"},
@@ -186,7 +187,7 @@ void Cmd_help (char* tr[]){
 
             {"bye", "Ends the shell"},
 
-            {"pid","Prints the pid of the process executing the shell.\n"
+            {"pid [-p]","Prints the pid of the process executing the shell.\n"
                    "-p : prints the pid of the shell’s parent process"},
 
             {"chdir","Changes the current working directory of the shell to dir. "
@@ -199,14 +200,14 @@ void Cmd_help (char* tr[]){
             {"help","displays a list of available commands. help cmd gives a brief help "
                     "on the usage of comand cmd"},
 
-            {"hist", "Shows/clears the historic of commands executed by this shell.\n"
+            {"hist [-c] [-N]", "Shows/clears the historic of commands executed by this shell.\n"
                      "-c : Clears (empties) the list of historic commands\n-N : Prints the first N comands"},
 
-            {"command", "Repeats command number N"},
+            {"command N", "Repeats command number N"},
 
             {"infosys", "Prints information on the machine running the shell"},
 
-            {"open", "open {file} mode : Opens the file {file} and adds it to the list of shell open files\n" 
+            {"open {file} {mode}","Opens the file {file} and adds it to the list of shell open files\n" 
                     "mode values : cr, ap, ex, ro, rw, wo, tr"},
 
             {"close", "Closes the file with df file descriptor and eliminates the corresponding item from the list"},
@@ -215,6 +216,8 @@ void Cmd_help (char* tr[]){
 
             {"listopen","Lists the shell open files. For each file it lists its descriptor, the file "
                         "name and the opening mode."},
+            {"stat [-long][-link] [-acc]", "Gives information on a file or directory.\n"
+                    "-long : long list\n-acc : access time\n-link : if it is symbolic link, the path contained"},
             {NULL,NULL}
     };
 
@@ -348,7 +351,9 @@ void Cmd_stat (char* tr[]){
     }
     else{
         int i=0;
+        struct stat statbuf;
         bool statlong =false, acc =false, link=false;
+
         for (i; tr[i]!=NULL;i++){ //Check arguments
             if (!strcmp(tr[i], "-long")){
                 statlong=true;
@@ -358,8 +363,54 @@ void Cmd_stat (char* tr[]){
                 link =true;
             }else break;
         }
+
         for (;tr[i]!=NULL;i++){ //Check names of files
-            stat();
+
+            if (stat(tr[i], &statbuf)==-1){
+                perror("Impossible to access file or directory");
+            } else{ 
+                if (statlong){
+                    printf ("1. Last statuschange   2. Blocks allocated   3. (I-node number)   4. Ownership   5. File size\n");
+                    printf ("%s    ", statbuf.st_ctime);
+                }
+                if (acc){
+                    printf("Last file access: %s", ctime(&statbuf.st_atime));
+                }
+                if (link){
+                    printf()
+                }
+            }
         }
     }
 }
+
+void Cmd_list (char* tr[]){
+
+}
+
+void Cmd_delete (char* tr[]){
+
+}
+
+void Cmd_deltree (char* tr[]){
+    
+}
+
+
+
+
+
+
+
+
+
+printf("I-node number:            %ld\n", (long) sb.st_ino);
+printf("Mode:                     %lo (octal)\n", (unsigned long) sb.st_mode);
+printf("Link count:               %ld\n", (long) sb.st_nlink);
+printf("Ownership:                UID=%ld   GID=%ld\n", (long) sb.st_uid, (long) sb.st_gid);
+printf("Preferred I/O block size: %ld bytes\n", (long) sb.st_blksize);
+printf("File size:                %lld bytes\n", (long long) sb.st_size);
+printf("Blocks allocated:         %lld\n", (long long) sb.st_blocks);
+printf("Last status change:       %s", ctime(&sb.st_ctime));
+printf("Last file access:         %s", ctime(&sb.st_atime));
+printf("Last file modification:   %s", ctime(&sb.st_mtime));
