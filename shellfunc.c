@@ -31,13 +31,14 @@ void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles){ //Tak
 
     if (tr[0]==NULL)
         return;
+    
+    if(!insertCmd(linea, his)){
+        printf("Error: Could not add to command history (not enough memory?)");
+    }
 
     for (i=0;C[i].name!=NULL;i++) { //Loop comparing the tokens with the name of the command
 
         if (!strcmp(tr[0], "hist")) { //Cases where commands need lists
-            if(!insertCmd(linea, his)){
-                printf("Error: Could not add to command history (not enough memory?)");
-            }
             Cmd_hist(tr + 1, his);
             return;
         } else if(!strcmp(tr[0], "command")) {
@@ -57,9 +58,6 @@ void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles){ //Tak
             return;
         }
         else if (!strcmp(tr[0], C[i].name)) { //Cases where commands don't need anything else
-            if(!insertCmd(linea, his)){
-                printf("Error: Could not add to command history (not enough memory?)");
-            }
             (*C[i].func)(tr + 1);
             return;
         }
