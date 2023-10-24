@@ -11,6 +11,7 @@
 #include <pwd.h>
 #include <grp.h>
 #include <errno.h>
+#include <dirent.h>
 
 #define MAXLINEA 2048
 #define MAXFILENAME 256

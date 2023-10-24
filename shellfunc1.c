@@ -30,8 +30,7 @@ char LetraTF (mode_t m){
      }
 }
 
-char * ConvierteModo (mode_t m)
-{
+char * ConvierteModo (mode_t m){
     static char permisos[12];
     strcpy (permisos,"---------- ");
     
@@ -83,7 +82,7 @@ void DoStat (char *name, bool statlong, bool acc, bool link ){
         return;
     }
     if (!statlong){
-        printf("%lld  %s\n", (long long)s.st_size, name);
+        printf("%10lld  %s\n", (long long)s.st_size, name);
         return;
     }
 
@@ -108,29 +107,116 @@ void DoStat (char *name, bool statlong, bool acc, bool link ){
 }
 
 void Cmd_stat (char* tr[]){
-    int i=0;
-    bool statlong =false, acc =false, link=false;
+    int i = 0;
+    bool statlong = false, acc = false, link = false;
 
     if (tr[0]==NULL) { //No arguments
         Cmd_chdir(tr);
         return;
     }
-    for (i=0; tr[i]!=NULL;i++){ //Check arguments
+    for (; tr[i]!=NULL;i++){ //Check arguments
         if (!strcmp(tr[i], "-long")){
-            statlong=true;
+            statlong = true;
         }else if (!strcmp(tr[i], "-acc")){
-            acc=true;
+            acc = true;
         }else if (!strcmp(tr[i], "-link")){
-            link =true;
+            link = true;
         }else break;
     }
     printf("( Date,  nº of links,  Inode nº,  User,  Group,  Size,  Permissions,  Name  [-> Link] )\n\n");
     for (;tr[i]!=NULL; i++) //go through the files
-        DoStat(tr[i],statlong,acc,link);
+        DoStat(tr[i], statlong, acc, link);
 }
 
-void Cmd_list (char* tr[]){
+
+void DoList(DIR *dirstream, char* dirname, bool statlong, bool acc, bool link, bool hid){
+    struct dirent *nextdir;
+    printf("**********%s\n", dirname);
     
+    while ((nextdir = readdir(dirstream)) != NULL) { //go through all files, if it isn't hid and the file begins with '.', skip it
+        if (hid || nextdir->d_name[0] != '.') {
+            DoStat(nextdir->d_name, statlong, acc, link);
+        }
+    }
+}
+
+void DoListReca(DIR *dirstream, bool statlong, bool acc, bool link, bool hid){
+    struct dirent *nextdir;
+    struct stat s;
+    
+    if((nextdir = readdir(dirstream)) == NULL){
+        return;
+    }
+
+    DoStat(nextdir->d_name, statlong, acc, link);
+
+    lstat(nextdir->d_name, &s);    //If it is not a directory, just print stats of file
+    if (S_ISDIR(s.st_mode)){
+        DoListReca(dirstream, statlong, acc, link, hid);
+    }
+}
+
+void DoListRecb(DIR *dirstream, bool statlong, bool acc, bool link, bool hid){
+    struct dirent *nextdir;
+    struct stat s;
+    
+    while ((nextdir = readdir(dirstream)) != NULL){
+        lstat(nextdir->d_name,&s);
+        
+        if (S_ISDIR(s.st_mode)){
+            printf("*********%s\n", nextdir->d_name);
+            if (hid || nextdir->d_name[0] != '.') 
+                DoListRecb (dirstream, statlong, acc, link, hid);
+        }
+        DoStat (nextdir->d_name, statlong, acc, link);
+    }
+    
+}
+
+
+void Cmd_list (char* tr[]){
+    int i = 0;
+    bool statlong = false, acc = false, link = false, reca=false, recb=false, hid=false;
+    struct stat s;
+    DIR *dirstream;  
+
+    if (tr[0]==NULL) { //No arguments
+        Cmd_chdir(tr);
+        return;
+    }
+    for (; tr[i]!=NULL;i++){ //Check arguments
+        if (!strcmp(tr[i], "-long")){
+            statlong = true;
+        }else if (!strcmp(tr[i], "-acc")){
+            acc = true;
+        }else if (!strcmp(tr[i], "-link")){
+            link = true;
+        }else if (!strcmp(tr[i], "-hid")){
+            hid = true;
+        }else if (!strcmp(tr[i], "-reca")){
+            reca = true;
+        }else if (!strcmp(tr[i], "-recb")){
+            recb = true;
+        }else break;
+    }
+
+    for (;tr[i]!=NULL; i++){ //go through the directories
+
+        lstat(tr[i], &s);    //If it is not a directory, just print stats of file
+        if (S_ISDIR(s.st_mode)== 0){
+            DoStat(tr[i], statlong, acc, link);
+            break;
+        }
+
+        if((dirstream = opendir(tr[i])) == NULL){
+            perror("Unable to open directory");
+            break;
+        }
+
+        if (!reca && !recb) DoList(dirstream, tr[0], statlong, acc, link, hid);
+        else if (reca) DoListReca(dirstream, statlong, acc, link, hid);
+        else if (recb) DoListRecb(dirstream, statlong, acc, link, hid);
+    }
 }
 
 void Cmd_delete (char* tr[]){

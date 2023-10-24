@@ -26,6 +26,7 @@ void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles){ //Tak
             {"infosys", Cmd_infosys},
             {"create", Cmd_create},
             {"stat", Cmd_stat},
+            {"list", Cmd_list},
             {NULL,NULL}
     };
 
@@ -140,7 +141,7 @@ void Cmd_hist(char *tr[], List* his){
     else if (!strcmp(tr[0],"-c")){
         removeList(his);
     }
-    else if (atoi (tr[0]) < 0){
+    else if (atoi(tr[0]) < 0){
         printList(*his, abs(atoi (tr[0])));
     }
     else printf("Error: Invalid argument\n");
