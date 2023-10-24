@@ -10,5 +10,8 @@
 #include <fcntl.h>
 #include <pwd.h>
 #include <grp.h>
+#include <errno.h>
 
 #define MAXLINEA 2048
+#define MAXFILENAME 256
+#define MAXDATE 17

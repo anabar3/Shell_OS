@@ -30,7 +30,9 @@ char LetraTF (mode_t m){
      }
 }
 
-char * ConvierteModo (mode_t m, char *permisos){
+char * ConvierteModo (mode_t m)
+{
+    static char permisos[12];
     strcpy (permisos,"---------- ");
     
     permisos[0]=LetraTF(m);
@@ -50,72 +52,81 @@ char * ConvierteModo (mode_t m, char *permisos){
     return permisos;
 }
 
+char* Date(time_t filedate){   
+    static char date[MAXDATE];
+    struct tm tm = *localtime(&filedate);
+    strftime(date,MAXDATE, "%d/%m/%Y-%H:%M", &tm);
+    return date;
+}
+
+char* User(uid_t uid){ 
+    struct passwd *pws;
+    if ((pws = getpwuid(uid)) == NULL) return "???";
+    return pws->pw_name;
+}
+
+char* Group(gid_t gid){
+    struct group *grs;
+    if ((grs = getgrgid(gid)) == NULL) return "???";
+    return grs->gr_name;
+}
+
+
+void DoStat (char *name, bool statlong, bool acc, bool link ){
+    struct stat s;
+    time_t filetime;
+    char buff [MAXFILENAME]; //for links
+    int nlink;
+
+    if (lstat(name, &s) == -1){ //save stats to s
+        printf("Impossible to access %s: %s", name, strerror(errno));
+        return;
+    }
+    if (!statlong){
+        printf("%lld  %s\n", (long long)s.st_size, name);
+        return;
+    }
+
+    filetime = acc ? s.st_atime : s.st_mtime; //if acc, filetime = atime, else mtime
+
+    //PRINT
+    printf("%s %4ld %10ld  %10s %10s %15lld %s %s", 
+            Date(filetime), s.st_nlink, s.st_ino, User(s.st_uid), Group(s.st_gid), (long long)s.st_size, ConvierteModo(s.st_mode), name);
+
+    //LINK
+    if (link && S_ISLNK(s.st_mode)) {  //only if it has a link
+        printf(" -> ");
+        if ((nlink = readlink(name, buff, MAXFILENAME)) != -1) {
+            buff[nlink] = '\0';
+            printf ("%s", buff);
+        }
+        else{
+            printf("Error reading the link: %s", strerror(errno));
+        }
+    }
+    printf ("\n");
+}
+
 void Cmd_stat (char* tr[]){
+    int i=0;
+    bool statlong =false, acc =false, link=false;
+
     if (tr[0]==NULL) { //No arguments
         Cmd_chdir(tr);
+        return;
     }
-    else{
-        int i=0;
-        struct stat statbuf;
-        bool statlong =false, acc =false, link=false;
-
-        for (; tr[i]!=NULL;i++){ //Check arguments
-            if (!strcmp(tr[i], "-long")){
-                statlong=true;
-            }else if (!strcmp(tr[i], "-acc")){
-                acc=true;
-            }else if (!strcmp(tr[i], "-link")){
-                link =true;
-            }else break;
-        }
-
-        for (;tr[i]!=NULL;i++){ //Check names of files
-
-            if (lstat(tr[i], &statbuf)==-1){
-                perror("Impossible to access file or directory");
-            } else{ 
-                if (statlong){
-                    //PERMISSIONS
-                    char permissions[12];
-                    ConvierteModo(statbuf.st_mode, permissions);
-                    
-                    //DATES
-                    char date[200];
-                    struct tm tm;
-                    if(acc){
-                        tm = *localtime (&statbuf.st_atime);
-                    }
-                    else{
-                        tm= *localtime (&statbuf.st_ctime);
-                    }
-                    strftime(date, sizeof(date), "%d/%m/%Y %H:%M", &tm);
-
-                    //OWNERSHIPS
-                    struct passwd *pws;
-                    pws = getpwuid(statbuf.st_uid);
-                    struct group *grs;
-                    grs = getgrgid(statbuf.st_gid);
-
-                    //LINK
-                    char linkbuf[204] = "\0"; // Increase the size to accommodate the concatenated link target
-                    if (link) { 
-                        char buff[200];
-                        if (readlink(tr[i], buff, 200) == -1) {
-                            perror("Error reading the route");
-                        } else {
-                            strcpy(linkbuf, "-> ");
-                            strcat(linkbuf, buff);
-                        }
-                    }
-
-                    //PRINT
-                    printf ("1. Last status change   2. Link count   3. (I-node number)   4. Ownership    5. File size    6. Mode\n");
-                    
-                    printf ("%s  %ld (%ld) %s %s %lld  %s %s", date, (long) statbuf.st_nlink, (long) statbuf.st_ino, pws->pw_name, grs->gr_name, (long long) statbuf.st_size, permissions, linkbuf);
-                }
-            }
-        }
+    for (i=0; tr[i]!=NULL;i++){ //Check arguments
+        if (!strcmp(tr[i], "-long")){
+            statlong=true;
+        }else if (!strcmp(tr[i], "-acc")){
+            acc=true;
+        }else if (!strcmp(tr[i], "-link")){
+            link =true;
+        }else break;
     }
+    printf("( Date,  nº of links,  Inode nº,  User,  Group,  Size,  Permissions,  Name  [-> Link] )\n\n");
+    for (;tr[i]!=NULL; i++) //go through the files
+        DoStat(tr[i],statlong,acc,link);
 }
 
 void Cmd_list (char* tr[]){
