@@ -309,94 +309,34 @@ void Cmd_list (char* tr[]){
     }
 }
 
+void Dodelete(char* name){
+    if (remove(name)!=0){
+        perror ("File can't be deleted");
+    }
+}
 
 void Cmd_delete (char* tr[]){
     int i;
     for (i=0;tr[i]!=NULL;i++){
-        if (remove(tr[i])!=0){
-            perror ("File can't be deleted");
-        }
+        Dodelete(tr[i]);
     }
 }
 
-
-
-void DoDeltree(char* path){
-    DIR* dirstream;
-    
-
-    struct dirent *nextdir;
-    struct stat s;
-    char subpath[MAXFILENAME];
-
-    while ((nextdir = readdir(dirstream)) != NULL){ 
-        if(!strcmp(nextdir->d_name, "..") || !strcmp(nextdir->d_name, ".")){
-            continue;
-        }
-
-        snprintf(subpath, MAXFILENAME, "%s/%s", path, nextdir->d_name);
-
-        if(lstat(subpath, &s) == -1){
-            perror("Unable to access element");
-            continue;
-        }
-        if(S_ISDIR(s.st_mode)){
-            DoDeltree(subpath);
-        }else{
-            if(remove(subpath) != 0){
-                perror("File can't be deleted");
-            }
-        }
-    }
-    closedir(dirstream);
-
-    if(remove(path) != 0){
-        perror("Directory can't be deleted");
-    }
-}
-
-
-/*void DoDeltree(DIR* dirstream){
-    struct dirent *nextdir;
-    struct stat s;
-
-    while ((nextdir = readdir(dirstream)) != NULL){ 
-        if(!strcmp(nextdir->d_name, "..") || !strcmp(nextdir->d_name, ".")){
-            continue;
-        }
-
-        if(lstat(nextdir->d_name, &s) == -1){
-            perror("Unable to access element");
-            continue;
-        }
-        if(S_ISDIR(s.st_mode)){
-            if(!isDirectoryEmpty(nextdir->d_name)){
-                DIR *subDirStream = opendir(nextdir->d_name);
-                if(subDirStream == NULL){
-                    perror("Unable to open directory");
-                    continue;
-                }
-                chdir(nextdir->d_name);
-                DoDeltree(subDirStream);
-                chdir("..");
-                closedir(subDirStream);
-            }
-            
-        }else Cmd_delete(nextdir->d_name);
-    }
-}*/
-
-void Cmd_deltree (char* tr[]){
-    int i;
+void Do_deltree (char* name){
     DIR *dirstream;
     struct dirent *nextdir;
     struct stat s;
-    char subpath[256];
+    
+    //Cambiar directorio al que hay que borrar
+    if (chdir(name) != 0){
+        perror ("Impossible to change directory");
+        return;
+    }
 
-    for (i=0; tr[i]!=NULL;i++){
-        if((dirstream = opendir(tr[i])) == NULL){
+    if(!isDirectoryEmpty(".")){
+        if((dirstream = opendir(".")) == NULL){
             perror("Unable to open directory");
-            break;
+            return;
         }
 
         while ((nextdir = readdir(dirstream)) != NULL){ 
@@ -404,24 +344,35 @@ void Cmd_deltree (char* tr[]){
                 continue;
             }
 
-            //snprintf(subpath, MAXFILENAME, "%s/%s", tr[i], nextdir->d_name);
-
-            if(lstat(subpath, &s) == -1){
+            if(lstat(nextdir->d_name, &s) == -1){
                 perror("Unable to access element");
                 continue;
             }
+
             if(S_ISDIR(s.st_mode)){
-                DoDeltree(subpath);
-            }else if(remove(subpath) != 0)
-                perror("File can't be deleted"); 
+                Do_deltree(nextdir->d_name);        
+            }
+            else{
+                Dodelete(nextdir->d_name);
+            }
         }
     }
-    closedir(dirstream);
 
-    if(remove(tr[i]) != 0)
-        perror("Directory can't be deleted");
-    
+    if (chdir("..") != 0){
+        perror ("Impossible to change directory");
+        return;
+    }
+    Dodelete(name);
+    return;
 }
+
+void Cmd_deltree(char *tr[]){
+    int i;
+    for (i=0; tr[i]!=NULL;i++){
+        Do_deltree(tr[i]);
+    }
+}
+
         
 
 
