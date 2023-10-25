@@ -16,3 +16,4 @@
 #define MAXLINEA 2048
 #define MAXFILENAME 256
 #define MAXDATE 17
+#define MAXDIRNAME 65536

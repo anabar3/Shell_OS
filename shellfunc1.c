@@ -147,7 +147,7 @@ int isDirectoryEmpty(char *dirname) {
 
 void DoList(DIR *dirstream, char* dirname, bool statlong, bool acc, bool link, bool hid){
     struct dirent *nextdir;
-    printf("**********%s\n", dirname);
+    printf("*************%s\n", dirname);
     
     while ((nextdir = readdir(dirstream)) != NULL) { //go through all files, if it isn't hid and the file begins with '.', skip it
         if (hid || nextdir->d_name[0] != '.') {
@@ -156,9 +156,7 @@ void DoList(DIR *dirstream, char* dirname, bool statlong, bool acc, bool link, b
     }
 }
 
-
-
-void DoListReca(DIR *dirstream, bool statlong, bool acc, bool link, bool hid){
+void DoListReca(DIR *dirstream, char* dirname, bool statlong, bool acc, bool link, bool hid){
     struct dirent *nextdir;
     struct stat s;
 
@@ -193,15 +191,17 @@ void DoListReca(DIR *dirstream, bool statlong, bool acc, bool link, bool hid){
             continue;
         }
         if(S_ISDIR(s.st_mode)){
-            printf("***********%s\n", nextdir->d_name);
+            printf("***********%s/%s\n", dirname, nextdir->d_name);
             if(!isDirectoryEmpty(nextdir->d_name)){
                 DIR *subDirStream = opendir(nextdir->d_name);
                 if(subDirStream == NULL){
                     perror("Unable to open directory");
                     continue;
                 }
+                strcat(dirname, "/");
+                strcat(dirname, nextdir->d_name);
                 chdir(nextdir->d_name);
-                DoListReca(subDirStream, statlong, acc, link, hid);
+                DoListReca(subDirStream, dirname, statlong, acc, link, hid);
                 chdir("..");
                 closedir(subDirStream);
             }
@@ -210,92 +210,10 @@ void DoListReca(DIR *dirstream, bool statlong, bool acc, bool link, bool hid){
 }
 
 
-
-/*void DoListRecb(DIR *dirstream, bool statlong, bool acc, bool link, bool hid){
-    struct dirent *nextdir;
-    struct stat s;
-
-    while ((nextdir = readdir(dirstream)) != NULL){
-        
-        
-        if (lstat(nextdir->d_name,&s)==-1){
-            perror ("Stat error ");
-
-        } else if (S_ISDIR(s.st_mode) && strcmp(nextdir->d_name,".") && (strcmp(nextdir->d_name,".."))){
-            
-            if(dirstream == NULL){
-                perror("Unable to open directory");
-                return;
-            }
-            DoListRecb (dirstream, statlong, acc, link, hid);
-            
-            
-            printf("*********%s\n", nextdir->d_name);
-            while ((nextdir = readdir(dirstream)) != NULL){
-                DoStat (nextdir->d_name, statlong, acc, link);
-            }
-            closedir(dirstream);
-            dirstream = opendir(nextdir->d_name);
-            
-        }    
-    }
-}*/
-
-/*
-void DoListRecb(DIR *dirstream, bool statlong, bool acc, bool link, bool hid){
-    struct dirent *nextdir;
-    struct stat s;
-
-
-
-    while ((nextdir = readdir(dirstream)) != NULL){ // recursion when directory
-        if(!strcmp(nextdir->d_name, "..") || !strcmp(nextdir->d_name, ".")){
-            continue;
-        }
-
-        if(!hid && nextdir->d_name[0] == '.'){
-            continue;
-        }
-
-        
-        if(lstat(nextdir->d_name, &s) == -1){
-            perror("Unable to access element");
-            continue;
-        }
-        if(S_ISDIR(s.st_mode)){
-            printf("******************%s\n", nextdir->d_name);
-            if(!isDirectoryEmpty(nextdir->d_name)){
-                DIR *subDirStream = opendir(nextdir->d_name);
-                if(subDirStream == NULL){
-                    perror("Unable to open directory");
-                    continue;
-                }
-                chdir(nextdir->d_name);
-                DoListReca(subDirStream, statlong, acc, link, hid);
-                chdir("..");
-                closedir(subDirStream);
-            }
-        }
-    }
-
-    rewinddir(dirstream); // reset dirstream to the beginning
-
-    while ((nextdir = readdir(dirstream)) != NULL){ //list all elements first
-        if(!strcmp(nextdir->d_name, "..") || !strcmp(nextdir->d_name, ".")){
-            continue;
-        }
-
-        if(!hid && nextdir->d_name[0] == '.'){
-            continue;
-        }
-
-        DoStat(nextdir->d_name, statlong, acc, link);
-    }
-}*/
-
 void DoListRecb(DIR *dirstream, char* dirname, bool statlong, bool acc, bool link, bool hid){
     struct dirent *nextdir;
     struct stat s;
+    char namecopy[MAXFILENAME];
 
     while ((nextdir = readdir(dirstream)) != NULL){ // recursion when directory
         if(!strcmp(nextdir->d_name, "..") || !strcmp(nextdir->d_name, ".")){
@@ -317,13 +235,16 @@ void DoListRecb(DIR *dirstream, char* dirname, bool statlong, bool acc, bool lin
                     perror("Unable to open directory");
                     continue;
                 }
+                strcpy(namecopy, dirname);
+                strcat(namecopy, "/");
+                strcat(namecopy, nextdir->d_name);
                 chdir(nextdir->d_name);
-                DoListRecb(subDirStream, nextdir->d_name, statlong, acc, link, hid);
+                DoListRecb(subDirStream, namecopy, statlong, acc, link, hid);
                 chdir("..");
                 closedir(subDirStream);
             }
             else{ //in case dir is empty
-                printf("******************%s\n", nextdir->d_name);
+                printf("******************%s/%s\n", dirname, nextdir->d_name);
             }
         }
     }
@@ -342,12 +263,6 @@ void DoListRecb(DIR *dirstream, char* dirname, bool statlong, bool acc, bool lin
         DoStat(nextdir->d_name, statlong, acc, link);
     }
 }
-
-
-
-
-
-
 
 void Cmd_list (char* tr[]){
     int i = 0;
@@ -389,17 +304,126 @@ void Cmd_list (char* tr[]){
         }
 
         if (!reca && !recb) DoList(dirstream, tr[i], statlong, acc, link, hid);
-        else if (reca) DoListReca(dirstream, statlong, acc, link, hid);
+        else if (reca) DoListReca(dirstream, tr[i], statlong, acc, link, hid);
         else if (recb) DoListRecb(dirstream, tr[i], statlong, acc, link, hid);
     }
 }
 
-void Cmd_delete (char* tr[]){
 
+void Cmd_delete (char* tr[]){
+    int i;
+    for (i=0;tr[i]!=NULL;i++){
+        if (remove(tr[i])!=0){
+            perror ("File can't be deleted");
+        }
+    }
 }
+
+
+
+void DoDeltree(char* path){
+    DIR* dirstream;
+    
+
+    struct dirent *nextdir;
+    struct stat s;
+    char subpath[MAXFILENAME];
+
+    while ((nextdir = readdir(dirstream)) != NULL){ 
+        if(!strcmp(nextdir->d_name, "..") || !strcmp(nextdir->d_name, ".")){
+            continue;
+        }
+
+        snprintf(subpath, MAXFILENAME, "%s/%s", path, nextdir->d_name);
+
+        if(lstat(subpath, &s) == -1){
+            perror("Unable to access element");
+            continue;
+        }
+        if(S_ISDIR(s.st_mode)){
+            DoDeltree(subpath);
+        }else{
+            if(remove(subpath) != 0){
+                perror("File can't be deleted");
+            }
+        }
+    }
+    closedir(dirstream);
+
+    if(remove(path) != 0){
+        perror("Directory can't be deleted");
+    }
+}
+
+
+/*void DoDeltree(DIR* dirstream){
+    struct dirent *nextdir;
+    struct stat s;
+
+    while ((nextdir = readdir(dirstream)) != NULL){ 
+        if(!strcmp(nextdir->d_name, "..") || !strcmp(nextdir->d_name, ".")){
+            continue;
+        }
+
+        if(lstat(nextdir->d_name, &s) == -1){
+            perror("Unable to access element");
+            continue;
+        }
+        if(S_ISDIR(s.st_mode)){
+            if(!isDirectoryEmpty(nextdir->d_name)){
+                DIR *subDirStream = opendir(nextdir->d_name);
+                if(subDirStream == NULL){
+                    perror("Unable to open directory");
+                    continue;
+                }
+                chdir(nextdir->d_name);
+                DoDeltree(subDirStream);
+                chdir("..");
+                closedir(subDirStream);
+            }
+            
+        }else Cmd_delete(nextdir->d_name);
+    }
+}*/
 
 void Cmd_deltree (char* tr[]){
+    int i;
+    DIR *dirstream;
+    struct dirent *nextdir;
+    struct stat s;
+    char subpath[256];
+
+    for (i=0; tr[i]!=NULL;i++){
+        if((dirstream = opendir(tr[i])) == NULL){
+            perror("Unable to open directory");
+            break;
+        }
+
+        while ((nextdir = readdir(dirstream)) != NULL){ 
+            if(!strcmp(nextdir->d_name, "..") || !strcmp(nextdir->d_name, ".")){
+                continue;
+            }
+
+            //snprintf(subpath, MAXFILENAME, "%s/%s", tr[i], nextdir->d_name);
+
+            if(lstat(subpath, &s) == -1){
+                perror("Unable to access element");
+                continue;
+            }
+            if(S_ISDIR(s.st_mode)){
+                DoDeltree(subpath);
+            }else if(remove(subpath) != 0)
+                perror("File can't be deleted"); 
+        }
+    }
+    closedir(dirstream);
+
+    if(remove(tr[i]) != 0)
+        perror("Directory can't be deleted");
     
 }
+        
+
+
 
 

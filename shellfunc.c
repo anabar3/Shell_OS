@@ -27,6 +27,8 @@ void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles){ //Tak
             {"create", Cmd_create},
             {"stat", Cmd_stat},
             {"list", Cmd_list},
+            {"delete", Cmd_delete},
+            {"deltree", Cmd_deltree},
             {NULL,NULL}
     };
 
@@ -97,7 +99,7 @@ void Cmd_pid (char *tr[]){
 
 void Cmd_chdir (char *tr[]){
     if (tr[0]==NULL) {
-        char cwd[256];
+        char cwd[MAXDIRNAME];
         if (getcwd(cwd, sizeof(cwd)) == NULL) //gets current directory
             perror("Impossible to show directory");
         else
@@ -142,7 +144,7 @@ void Cmd_hist(char *tr[], List* his){
         removeList(his);
     }
     else if (atoi(tr[0]) < 0){
-        printList(*his, abs(atoi (tr[0])));
+        printList(*his, abs(atoi(tr[0])));
     }
     else printf("Error: Invalid argument\n");
 }
@@ -215,8 +217,14 @@ void Cmd_help (char* tr[]){
 
             {"listopen","Lists the shell open files. For each file it lists its descriptor, the file "
                         "name and the opening mode."},
-            {"stat [-long][-link] [-acc]", "Gives information on a file or directory.\n"
+            {"create [-f] name", "Creates a directory or a file (last one in case -f)"},
+            {"stat [-long][-link] [-acc] name1 name2 ...", "Gives information on a file or directory."
                     "-long : long list\n-acc : access time\n-link : if it is symbolic link, the path contained"},
+            {"list [-long][-link] [-acc] [-reca] [-recb] name1 name2 ...", "Lists contents of directories."
+                    "-long : long list\n-acc : access time\n-link : if it is symbolic link, the path contained\n"
+                    "-recb : recursive (before)\n -reca : recursive (after)\n -hid : includes hidden files"},
+            {"delete [name1 name2 ...]", "Deletes files or empty directories"},
+            {"deltree [name1 name2 ...]", "Deletes files or non-empty directories recursively"},
             {NULL,NULL}
     };
 
