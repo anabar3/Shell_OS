@@ -1,1 +1,0 @@
-/home/javi/Escritorio/pat

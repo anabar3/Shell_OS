@@ -6,6 +6,7 @@
 #include "shellfunc.h"
 
 
+
 int main(){
     char linea[MAXLINEA];
     char* tr[MAXLINEA/2]; //array of strings (pointer to first element of array of chars)
