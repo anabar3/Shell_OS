@@ -71,7 +71,7 @@ char* Group(gid_t gid){
 }
 
 
-void DoStat (char *name, bool statlong, bool acc, bool link ){
+void Do_stat (char *name, bool statlong, bool acc, bool link ){
     struct stat s;
     time_t filetime;
     char buff [MAXFILENAME]; //for links
@@ -126,7 +126,7 @@ void Cmd_stat (char* tr[]){
     if (statlong) printf("Showing ... Date,  nº of links,  Inode nº,  User,  Group,  Size,  Permissions,  Name  [-> Link]\n\n");
     else printf("Showing ... Size, Name\n\n");
     for (;tr[i]!=NULL; i++) //go through the files
-        DoStat(tr[i], statlong, acc, link);
+        Do_stat(tr[i], statlong, acc, link);
 }
 
 int isDirectoryEmpty(char *dirname) {
@@ -156,19 +156,19 @@ int isDirectory(char* name){
     return S_ISDIR(s.st_mode);
 }
 
-void DoList(DIR *dirstream, char* dirname, bool statlong, bool acc, bool link, bool hid){
+void Do_list(DIR *dirstream, char* dirname, bool statlong, bool acc, bool link, bool hid){
     struct dirent *nextdir;
     printf("*************%s\n", dirname);
     
     while ((nextdir = readdir(dirstream)) != NULL) { //go through all files, if it isn't hid and the file begins with '.', skip it
         if (hid || nextdir->d_name[0] != '.') {
-            DoStat(nextdir->d_name, statlong, acc, link);
+            Do_stat(nextdir->d_name, statlong, acc, link);
         }
     }
 }
 
 
-void DoListReca(DIR *dirstream, char* dirname, bool statlong, bool acc, bool link, bool hid){
+void Do_list_reca(DIR *dirstream, char* dirname, bool statlong, bool acc, bool link, bool hid){
     struct dirent *nextdir;
     DIR *subdirstream;
     char pathcopy[MAXDIRNAME];
@@ -178,7 +178,7 @@ void DoListReca(DIR *dirstream, char* dirname, bool statlong, bool acc, bool lin
 
         if(!hid && nextdir->d_name[0] == '.') continue;
 
-        DoStat(nextdir->d_name, statlong, acc, link);
+        Do_stat(nextdir->d_name, statlong, acc, link);
     }
 
     rewinddir(dirstream); // reset dirstream to the beginning
@@ -200,7 +200,7 @@ void DoListReca(DIR *dirstream, char* dirname, bool statlong, bool acc, bool lin
             strcat(pathcopy, "/");
             strcat(pathcopy, nextdir->d_name);
             if (!Do_chdir(nextdir->d_name)) continue;
-            DoListReca(subdirstream, pathcopy, statlong, acc, link, hid);
+            Do_list_reca(subdirstream, pathcopy, statlong, acc, link, hid);
             if (!Do_chdir("..")) return;
             closedir(subdirstream);
 
@@ -209,7 +209,7 @@ void DoListReca(DIR *dirstream, char* dirname, bool statlong, bool acc, bool lin
 }
 
 
-void DoListRecb(DIR *dirstream, char* dirname, bool statlong, bool acc, bool link, bool hid){
+void Do_list_recb(DIR *dirstream, char* dirname, bool statlong, bool acc, bool link, bool hid){
     struct dirent *nextdir;
     char pathcopy[MAXFILENAME];
     DIR *subdirstream;
@@ -230,7 +230,7 @@ void DoListRecb(DIR *dirstream, char* dirname, bool statlong, bool acc, bool lin
             strcat(pathcopy, "/");
             strcat(pathcopy, nextdir->d_name);
             if (!Do_chdir(nextdir->d_name)) continue;
-            DoListRecb(subdirstream, pathcopy, statlong, acc, link, hid);
+            Do_list_recb(subdirstream, pathcopy, statlong, acc, link, hid);
             if (!Do_chdir("..")) return;
             closedir(subdirstream);
         }
@@ -247,7 +247,7 @@ void DoListRecb(DIR *dirstream, char* dirname, bool statlong, bool acc, bool lin
 
         if(!hid && nextdir->d_name[0] == '.') continue;
 
-        DoStat(nextdir->d_name, statlong, acc, link);
+        Do_stat(nextdir->d_name, statlong, acc, link);
     }
 }
 
@@ -281,7 +281,7 @@ void Cmd_list (char* tr[]){
 
         //If it is not a directory, just print stats of file
         if (!isDirectory(tr[i])){ //AQUI CAMBAIMSO
-            DoStat(tr[i], statlong, acc, link);
+            Do_stat(tr[i], statlong, acc, link);
             break;
         }
     
@@ -294,14 +294,15 @@ void Cmd_list (char* tr[]){
             break;
         }
 
-        if (!reca && !recb) DoList(dirstream, tr[i], statlong, acc, link, hid);
-        else if (recb) DoListRecb(dirstream, tr[i], statlong, acc, link, hid);
-        else if (reca) DoListReca(dirstream, tr[i], statlong, acc, link, hid);
+        if (!reca && !recb) Do_list(dirstream, tr[i], statlong, acc, link, hid);
+        else if (recb) Do_list_recb(dirstream, tr[i], statlong, acc, link, hid);
+        else if (reca) Do_list_reca(dirstream, tr[i], statlong, acc, link, hid);
         Do_chdir(actualpath);
+        closedir(dirstream);
     }
 }
 
-void Dodelete(char* name){
+void Do_delete(char* name){
     if (remove(name)!=0){
         perror ("File can't be deleted");
     }
@@ -310,7 +311,7 @@ void Dodelete(char* name){
 void Cmd_delete (char* tr[]){
     int i;
     for (i=0;tr[i]!=NULL;i++){
-        Dodelete(tr[i]);
+        Do_delete(tr[i]);
     }
 }
 
@@ -342,14 +343,15 @@ void Do_deltree (char* name){
                 Do_deltree(nextdir->d_name);        
             }
             else{
-                Dodelete(nextdir->d_name);
+                Do_delete(nextdir->d_name);
             }
         }
+        closedir(dirstream);
     }
 
     if (!Do_chdir("..")) return;
     
-    Dodelete(name);
+    Do_delete(name);
     return;
 }
 

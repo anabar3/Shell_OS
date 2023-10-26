@@ -3,7 +3,7 @@
 //LIST OPEN
 
 void createList2(List2* List2){
-    List2 = NULL;
+    *List2 = NULL;
 }
 
 bool createNode2 (Pos2 *q){
@@ -17,10 +17,7 @@ bool insertOpenFile(List2* List2, int desc, char* name, int mode){
     if (!createNode2(&q)) return false;
 
     q->data.descriptor = desc;
-    q->data.name = malloc(strlen(name) + 1); // +1 for the null-terminator
-    if (q->data.name != NULL) {
-        strcpy(q->data.name, name);
-    }
+    strcpy(q->data.name, name);
     q->data.mode = mode;
     q->next=NULL;
 
@@ -75,10 +72,7 @@ bool duplicateNode (List2* List2, int desc, int newdesc){
         if (!createNode2(&q)) return false;
 
         q->data.descriptor = newdesc;
-        q->data.name = malloc(strlen(p->data.name) + 1); // +1 for the null-terminator
-        if (q->data.name != NULL) {
-            strcpy(q->data.name, p->data.name);
-        }
+        strcpy(q->data.name, p->data.name);
         q->data.mode = p->data.mode;
 
         q->next = p->next;

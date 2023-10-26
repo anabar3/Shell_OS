@@ -2,7 +2,7 @@
 
 struct openNode{
     int descriptor;
-    char* name;
+    char name[MAXFILENAME];
     int mode;
 };
 
