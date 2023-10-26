@@ -29,3 +29,4 @@ void Cmd_stat(char* tr[]);
 void Cmd_list (char* tr[]);
 void Cmd_delete (char* tr[]);
 void Cmd_deltree (char* tr[]);
+bool Do_chdir(char* name);

@@ -78,7 +78,7 @@ void DoStat (char *name, bool statlong, bool acc, bool link ){
     int nlink;
 
     if (lstat(name, &s) == -1){ //save stats to s
-        printf("Impossible to access %s: %s", name, strerror(errno));
+        printf("Impossible to access %s: %s\n", name, strerror(errno));
         return;
     }
     if (!statlong){
@@ -123,7 +123,8 @@ void Cmd_stat (char* tr[]){
             link = true;
         }else break;
     }
-    printf("( Date,  nº of links,  Inode nº,  User,  Group,  Size,  Permissions,  Name  [-> Link] )\n\n");
+    if (statlong) printf("Showing ... Date,  nº of links,  Inode nº,  User,  Group,  Size,  Permissions,  Name  [-> Link]\n\n");
+    else printf("Showing ... Size, Name\n\n");
     for (;tr[i]!=NULL; i++) //go through the files
         DoStat(tr[i], statlong, acc, link);
 }
@@ -166,9 +167,11 @@ void DoList(DIR *dirstream, char* dirname, bool statlong, bool acc, bool link, b
     }
 }
 
+
 void DoListReca(DIR *dirstream, char* dirname, bool statlong, bool acc, bool link, bool hid){
     struct dirent *nextdir;
     DIR *subdirstream;
+    char pathcopy[MAXDIRNAME];
 
     while ((nextdir = readdir(dirstream)) != NULL){ //list all elements first
         if(!strcmp(nextdir->d_name, "..") || !strcmp(nextdir->d_name, ".")) continue;
@@ -189,16 +192,18 @@ void DoListReca(DIR *dirstream, char* dirname, bool statlong, bool acc, bool lin
 
         printf("***********%s/%s\n", dirname, nextdir->d_name);
         if(!isDirectoryEmpty(nextdir->d_name)){
-            if(subdirstream = opendir(nextdir->d_name) == NULL){
+            if((subdirstream = opendir(nextdir->d_name)) == NULL){
                 perror("Unable to open directory");
                 continue;
             }
-            strcat(dirname, "/");
-            strcat(dirname, nextdir->d_name);
-            chdir(nextdir->d_name);
-            DoListReca(subdirstream, dirname, statlong, acc, link, hid);
-            chdir("..");
+            strcpy(pathcopy,dirname); //for restoring path of previous directory
+            strcat(pathcopy, "/");
+            strcat(pathcopy, nextdir->d_name);
+            if (!Do_chdir(nextdir->d_name)) continue;
+            DoListReca(subdirstream, pathcopy, statlong, acc, link, hid);
+            if (!Do_chdir("..")) return;
             closedir(subdirstream);
+
         }
     }
 }
@@ -206,7 +211,7 @@ void DoListReca(DIR *dirstream, char* dirname, bool statlong, bool acc, bool lin
 
 void DoListRecb(DIR *dirstream, char* dirname, bool statlong, bool acc, bool link, bool hid){
     struct dirent *nextdir;
-    char namecopy[MAXFILENAME];
+    char pathcopy[MAXFILENAME];
     DIR *subdirstream;
 
     while ((nextdir = readdir(dirstream)) != NULL){ // recursion when directory
@@ -217,16 +222,16 @@ void DoListRecb(DIR *dirstream, char* dirname, bool statlong, bool acc, bool lin
         if(!isDirectory(nextdir->d_name)) continue;
         
         if(!isDirectoryEmpty(nextdir->d_name)){
-            if(subdirstream = opendir(nextdir->d_name) == NULL){
+            if((subdirstream = opendir(nextdir->d_name)) == NULL){
                 perror("Unable to open directory");
                 continue;
             }
-            strcpy(namecopy, dirname);
-            strcat(namecopy, "/");
-            strcat(namecopy, nextdir->d_name);
-            chdir(nextdir->d_name);
-            DoListRecb(subdirstream, namecopy, statlong, acc, link, hid);
-            chdir("..");
+            strcpy(pathcopy, dirname);
+            strcat(pathcopy, "/");
+            strcat(pathcopy, nextdir->d_name);
+            if (!Do_chdir(nextdir->d_name)) continue;
+            DoListRecb(subdirstream, pathcopy, statlong, acc, link, hid);
+            if (!Do_chdir("..")) return;
             closedir(subdirstream);
         }
         else{ //in case dir is empty
@@ -249,7 +254,8 @@ void DoListRecb(DIR *dirstream, char* dirname, bool statlong, bool acc, bool lin
 void Cmd_list (char* tr[]){
     int i = 0;
     bool statlong = false, acc = false, link = false, reca=false, recb=false, hid=false;
-    DIR *dirstream;  
+    DIR *dirstream; 
+    char actualpath[MAXDIRNAME]; 
 
     if (tr[0]==NULL) { //No arguments
         Cmd_chdir(tr);
@@ -274,19 +280,24 @@ void Cmd_list (char* tr[]){
     for (;tr[i]!=NULL; i++){ //go through the directories
 
         //If it is not a directory, just print stats of file
-        if (!isDirectory(tr[0])){
+        if (!isDirectory(tr[i])){ //AQUI CAMBAIMSO
             DoStat(tr[i], statlong, acc, link);
             break;
         }
-
-        if((dirstream = opendir(tr[i])) == NULL){
+    
+        if (getcwd(actualpath, sizeof(actualpath)) == NULL) //gets current directory and saves it in actualpath
+            perror("Impossible to show directory");
+        if (!Do_chdir(tr[i])) continue;
+        
+        if((dirstream = opendir(".")) == NULL){
             perror("Unable to open directory");
             break;
         }
 
         if (!reca && !recb) DoList(dirstream, tr[i], statlong, acc, link, hid);
-        else if (reca) DoListReca(dirstream, tr[i], statlong, acc, link, hid);
         else if (recb) DoListRecb(dirstream, tr[i], statlong, acc, link, hid);
+        else if (reca) DoListReca(dirstream, tr[i], statlong, acc, link, hid);
+        Do_chdir(actualpath);
     }
 }
 
@@ -309,10 +320,7 @@ void Do_deltree (char* name){
     struct stat s;
     
     //Cambiar directorio al que hay que borrar
-    if (chdir(name) != 0){
-        perror ("Impossible to change directory");
-        return;
-    }
+    if (!Do_chdir(name)) return;
 
     if(!isDirectoryEmpty(".")){
         if((dirstream = opendir(".")) == NULL){
@@ -339,10 +347,8 @@ void Do_deltree (char* name){
         }
     }
 
-    if (chdir("..") != 0){
-        perror ("Impossible to change directory");
-        return;
-    }
+    if (!Do_chdir("..")) return;
+    
     Dodelete(name);
     return;
 }

@@ -97,6 +97,15 @@ void Cmd_pid (char *tr[]){
         printf("Error: Invalid argument\n");
 }
 
+bool Do_chdir (char *name){
+    
+    if (chdir(name)!=0){ //changes directory to the given
+        perror ("Impossible to change directory");
+        return false;
+    }else return true;
+
+}
+
 void Cmd_chdir (char *tr[]){
     if (tr[0]==NULL) {
         char cwd[MAXDIRNAME];
@@ -104,10 +113,8 @@ void Cmd_chdir (char *tr[]){
             perror("Impossible to show directory");
         else
             printf("%s\n", cwd);
-    }
-    else
-    if (chdir(tr[0])!=0) //changes directory to the given
-        perror ("Impossible to change directory");
+    }else Do_chdir(tr[0]);
+
 }
 
 void Cmd_date (char *tr[]){
@@ -179,52 +186,52 @@ void Cmd_help (char* tr[]){
     };
 
     static struct Help H[]={
-            {"authors [-l]",": Prints the names and logins of the program authors.\n"
+            {"authors", "[-l] : Prints the names and logins of the program authors.\n"
                        "-l : prints only the logins and authors\n-n : prints only the names"},
 
             {"quit", ": Ends the shell"},
 
             {"exit", ": Ends the shell"},
 
-            {"bye", "Ends the shell"},
+            {"bye", ": Ends the shell"},
 
-            {"pid [-p]","Prints the pid of the process executing the shell.\n"
-                   "-p : prints the pid of the shell’s parent process"},
+            {"pid", "[-p] : Prints the pid of the process executing the shell.\n"
+                   "-p : prints the pid of the shell's parent process"},
 
-            {"chdir","Changes the current working directory of the shell to dir. "
-                     "When invoked without auguments it prints the current working directory"},
+            {"chdir",": Changes the current working directory of the shell to dir. "
+                    "When invoked without auguments it prints the current working directory"},
 
-            {"date","Prints the current date"},
+            {"date",": Prints the current date"},
 
-            {"time", "Prints the current time"},
+            {"time", ": Prints the current time"},
 
-            {"help","displays a list of available commands. help cmd gives a brief help "
+            {"help","Displays a list of available commands. help cmd gives a brief help "
                     "on the usage of comand cmd"},
 
-            {"hist [-c] [-N]", "Shows/clears the historic of commands executed by this shell.\n"
+            {"hist", "[-c] [-N] : Shows/clears the historic of commands executed by this shell.\n"
                      "-c : Clears (empties) the list of historic commands\n-N : Prints the first N comands"},
 
-            {"command N", "Repeats command number N"},
+            {"command", "N : Repeats command number N"},
 
-            {"infosys", "Prints information on the machine running the shell"},
+            {"infosys", ": Prints information on the machine running the shell"},
 
-            {"open {file} {mode}","Opens the file {file} and adds it to the list of shell open files\n" 
+            {"open", "{file} {mode} : Opens the file {file} and adds it to the list of shell open files\n" 
                     "mode values : cr, ap, ex, ro, rw, wo, tr"},
 
-            {"close", "Closes the file with df file descriptor and eliminates the corresponding item from the list"},
+            {"close", ": Closes the file with df file descriptor and eliminates the corresponding item from the list"},
 
-            {"dup", "Duplicates the df file descriptor (creating the corresponding new entry on the file list"},
+            {"dup", ": Duplicates the df file descriptor (creating the corresponding new entry on the file list"},
 
-            {"listopen","Lists the shell open files. For each file it lists its descriptor, the file "
+            {"listopen",": Lists the shell open files. For each file it lists its descriptor, the file "
                         "name and the opening mode."},
-            {"create [-f] name", "Creates a directory or a file (last one in case -f)"},
-            {"stat [-long][-link] [-acc] name1 name2 ...", "Gives information on a file or directory."
+            {"create","[-f] name Creates a directory or a file (last one in case -f)"},
+            {"stat", "[-long][-link] [-acc] : name1 name2 ...Gives information on a file or directory."
                     "-long : long list\n-acc : access time\n-link : if it is symbolic link, the path contained"},
-            {"list [-long][-link] [-acc] [-reca] [-recb] name1 name2 ...", "Lists contents of directories."
+            {"list"," [-long][-link] [-acc] [-reca] [-recb] name1 name2 ... : Lists contents of directories."
                     "-long : long list\n-acc : access time\n-link : if it is symbolic link, the path contained\n"
                     "-recb : recursive (before)\n -reca : recursive (after)\n -hid : includes hidden files"},
-            {"delete [name1 name2 ...]", "Deletes files or empty directories"},
-            {"deltree [name1 name2 ...]", "Deletes files or non-empty directories recursively"},
+            {"delete", "[name1 name2 ...] : Deletes files or empty directories"},
+            {"deltree", "[name1 name2 ...] : Deletes files or non-empty directories recursively"},
             {NULL,NULL}
     };
 
@@ -236,7 +243,7 @@ void Cmd_help (char* tr[]){
     } else { //If argument valid, print name and description
         for (int i=0;H[i].cmdName !=NULL;i++) {
             if (!strcmp(tr[0], H[i].cmdName)) {
-                printf("%s: %s\n", H[i].cmdName, H[i].cmdDescription);
+                printf("%s %s\n", H[i].cmdName, H[i].cmdDescription);
                 return;
             }
         }
