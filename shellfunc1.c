@@ -177,6 +177,8 @@ void Do_list_reca(DIR *dirstream, char* dirname, bool statlong, bool acc, bool l
     DIR *subdirstream;
     char pathcopy[MAXDIRNAME];
 
+    printf("***********%s\n", dirname);
+    
     while ((nextdir = readdir(dirstream)) != NULL){ //list all elements first
         if(!strcmp(nextdir->d_name, "..") || !strcmp(nextdir->d_name, ".")) continue;
 
@@ -194,7 +196,6 @@ void Do_list_reca(DIR *dirstream, char* dirname, bool statlong, bool acc, bool l
 
         if(!isDirectory(nextdir->d_name)) continue;
 
-        printf("***********%s/%s\n", dirname, nextdir->d_name);
         if(!isDirectoryEmpty(nextdir->d_name)){
             if((subdirstream = opendir(nextdir->d_name)) == NULL){
                 perror("Unable to open directory");
