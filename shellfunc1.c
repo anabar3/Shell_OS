@@ -284,9 +284,9 @@ void Cmd_list (char* tr[]){
     for (;tr[i]!=NULL; i++){ //go through the directories
 
         //If it is not a directory, just print stats of file
-        if (!isDirectory(tr[i])){ //AQUI CAMBAIMSO
+        if (!isDirectory(tr[i])){
             Do_stat(tr[i], statlong, acc, link);
-            break;
+            continue;
         }
     
         if (getcwd(actualpath, sizeof(actualpath)) == NULL) //gets current directory and saves it in actualpath
@@ -295,7 +295,7 @@ void Cmd_list (char* tr[]){
         
         if((dirstream = opendir(".")) == NULL){
             perror("Unable to open directory");
-            break;
+            continue;
         }
 
         if (!reca && !recb) Do_list(dirstream, tr[i], statlong, acc, link, hid);
