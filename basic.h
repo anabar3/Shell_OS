@@ -16,6 +16,8 @@
 #include <grp.h>
 #include <errno.h>
 #include <dirent.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
 
 #define MAXLINEA 2048
 #define MAXFILENAME 256

@@ -17,15 +17,17 @@ bool createNode3 (Pos3 *q){
 
 
 
-bool insert3(List3* List3, struct data input){
+bool insert3(List3* List3, data3 input){
     Pos3 q;
 
     if (!createNode3(&q)) return false;
 
     q->data.address = input.address;
     q->data.size = input.size;
-    q->data.timeAlloc = input.timeAlloc;
+    q->data.timeAlloc = malloc(MAXDATE*sizeof(char));
+    strcpy(q->data.timeAlloc ,input.timeAlloc);
     strcpy(q->data.type, input.type);
+    q->data.cl = input.cl;
     q->next=NULL;
     
 
@@ -41,7 +43,9 @@ bool insert3(List3* List3, struct data input){
 
 Pos3 find3 (List3 List3, size_t size){
     Pos3 q;
-    for (q = List3; q->next->data.size!=size && q->next!=NULL; q=q->next); //until points to node before file searched
+    for (q = List3; q->next!=NULL && q->next->data.size!=size; q=q->next){ //until points to node before node searched
+        if(strcmp(q->data.type, "malloc")) continue;
+    } 
     return q;
 }
 
@@ -51,30 +55,35 @@ bool delete3(List3* List3, size_t size){
         Pos3 tmp;
         tmp= *List3;
         *List3 = tmp->next;
+        free(tmp->data.address);
+        free(tmp->data.timeAlloc);
         free(tmp);
         return true;
     }
-    Pos3 p = find3(List3, size);
+    Pos3 p = find3(*List3, size);
     if (p->next==NULL){
         return false;
     }else {
         Pos3 tmp;
         tmp=p->next;
         p->next = p->next->next;
+        free(tmp->data.address);
+        free(tmp->data.timeAlloc);
         free(tmp);
         return true;
     }
 }
 
 
-void printList3(List3 List3){
+
+void printList3(List3 List3, char * type){
     if (List3==NULL){
         return;
     }else {
-        printf("%5s%10s%15s%10s\n", "Address", "Size", "time allocation", "Type");
+        printf("%5s%22s%20s%8s\n", "Address", "Size", "Time allocation", "Type");
         Pos3 q;
         for (q = List3; q != NULL; q = q->next) {
-            printf("%5d%15s%15d%15s\n", q->data.address, q->data.size, q->data.timeAlloc, q->data.type);
+            if (strcmp (type,q->data.type)) printf("%14p%15ld%20s%10s\n", q->data.address, q->data.size, q->data.timeAlloc, q->data.type); //print only of the type asked
         }
     }
 }

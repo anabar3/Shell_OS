@@ -64,7 +64,7 @@ void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles, List3*
             Cmd_listopen(tr + 1, *openFiles);
             return;
         }else if (!strcmp (tr[0], "malloc")) {
-            Cmd_malloc(tr + 1, *memlist);
+            Cmd_malloc(tr + 1, memlist);
             return;
         }else if (!strcmp(tr[0], C[i].name)) { //Cases where commands don't need anything else
             (*C[i].func)(tr + 1);
