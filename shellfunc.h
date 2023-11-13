@@ -5,6 +5,7 @@
 #include "basic.h"
 #include "list1.h"
 #include "list2.h"
+#include "list3.h"
 
 struct CMD{
     char * name;
@@ -12,7 +13,7 @@ struct CMD{
 };
 
 int CutCommand(char *cadena, char* trozos[]);
-void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles);
+void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles, List3* memlist);
 
 void Cmd_authors (char *tr[]);
 void Cmd_quit (char *tr[]);
@@ -34,3 +35,4 @@ void Cmd_list (char* tr[]);
 void Cmd_delete (char* tr[]);
 void Cmd_deltree (char* tr[]);
 bool Do_chdir(char* name);
+void Cmd_malloc (char* tr[], List3* memlist);
