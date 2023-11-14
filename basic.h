@@ -18,6 +18,7 @@
 #include <dirent.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <sys/mman.h>
 
 #define MAXLINEA 2048
 #define MAXFILENAME 256

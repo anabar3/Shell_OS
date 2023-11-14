@@ -10,6 +10,7 @@ typedef struct data3{
     char* timeAlloc;
     char type[7];
     key_t cl;
+    int df;
     
 }data3;
 
@@ -24,5 +25,7 @@ typedef Pos3 List3;
 void createList3(List3* List3);
 Pos3 find3 (List3 List3, size_t size);
 bool insert3(List3* List3, data3);
-bool delete3(List3* List3, size_t size);
+bool deleteBySize3(List3* List3, size_t size);
+bool deleteByKey3(List3* List3, key_t key);
+bool deleteByDf3(List3* List3, int df);
 void printList3(List3 List3, char* type);

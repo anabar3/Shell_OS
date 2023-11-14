@@ -37,3 +37,5 @@ void Cmd_delete (char* tr[]);
 void Cmd_deltree (char* tr[]);
 bool Do_chdir(char* name);
 void Cmd_malloc (char* tr[], List3* memlist);
+void Cmd_shared (char* tr[], List3* memlist);
+void Cmd_mmap (char *tr[], List3* memlist);
