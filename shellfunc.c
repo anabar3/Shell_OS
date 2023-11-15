@@ -33,6 +33,9 @@ void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles, List3*
             {"list", Cmd_list},
             {"delete", Cmd_delete},
             {"deltree", Cmd_deltree},
+            {"read", Cmd_read},
+            {"write", Cmd_write},
+            {"memdump", Cmd_memdump},
             {NULL,NULL}
     };
 

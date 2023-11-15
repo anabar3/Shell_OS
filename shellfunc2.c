@@ -230,6 +230,135 @@ void Cmd_mmap (char *tr[], List3* memlist){
     }
 }
 
+
+ssize_t ReadFile (char *f, void *p, size_t cont){
+    struct stat s;
+    ssize_t n;  
+    int df,aux;
+
+    if (stat (f,&s)==-1 || (df=open(f,O_RDONLY))==-1)
+        return -1;     
+    if (cont==-1)   /* si pasamos -1 como bytes a leer lo leemos entero*/
+        cont=s.st_size;
+    if ((n=read(df,p,cont))==-1){
+        aux=errno; //save the errno to restore later in case close fails
+        close(df);
+        errno=aux;
+        return -1;
+    }
+    close (df);
+    return n;
+}
+
+void * strtop(char * string){
+    unsigned long pointer = strtoul(string, NULL, 16);
+    if (pointer==0)  return NULL;
+    return (void *)pointer;
+}
+
+
+void Cmd_read (char *tr[]){ //take contents of file and put them in address in memory (cont bytes)
+    void *p;
+    size_t cont=-1;  /* -1 indica leer todo el fichero*/
+    ssize_t n;
+    if (tr[0]==NULL || tr[1]==NULL){
+        printf ("Not enough parameters\n");
+        return;
+    }
+
+    if((p = strtop(tr[1])) == NULL){ /*convertimos de cadena a puntero*/
+        printf("Invalid address\n");
+        return;
+    }  
+
+    if (tr[2]!=NULL)
+        cont=(size_t) atoll(tr[2]); //if a cont was specified, replace variable cont
+
+    if ((n=ReadFile(tr[0],p,cont))==-1)
+        perror ("Impossible to read file");
+    else
+        printf ("Read %lld bytes of %s in %p\n",(long long) n,tr[0],p);
+}
+
+
+ssize_t WriteFile (char *f, void *p, size_t cont, int overwrite){
+    ssize_t  n;
+    int df,aux, flags = O_CREAT | O_WRONLY;
+
+    if (overwrite)
+        flags |= O_TRUNC;
+    else
+        flags |= O_APPEND;
+    
+    if ((df=open(f,flags,0777))==-1)
+        return -1;
+    
+    if ((n=write(df,p,cont))==-1){
+        aux=errno;
+        close(df);
+        errno=aux;
+        return -1;
+    }
+
+    close (df);
+    return n;
+}
+
+
+void Cmd_write (char *tr[]){
+    void *p;
+    size_t cont;  
+    ssize_t n;
+    int overwrite=0;
+
+    if (!strcmp(tr[0], "-o")){
+        overwrite = true;
+    }
+
+    if (tr[0]==NULL || tr[1]==NULL || tr[2]==NULL || (overwrite && tr[3]==NULL)){
+        printf ("Not enough parameters\n");
+        return;
+    }
+
+
+    if((p = strtop(tr[1+overwrite])) == NULL){ //overwrite will add 1 when there is an extra argument (-o) so everything will be displaced
+        printf("Invalid address\n");
+        return;
+    }  
+
+    cont=(size_t) atoll(tr[2+overwrite]); //if a cont was specified, replace variable cont
+    if(cont == 0){
+        printf("Invalid argument\n");
+        return;
+    }
+
+    if ((n=WriteFile(tr[0+overwrite],p,cont, overwrite))==-1)
+        perror ("Impossible to write file");
+    else
+        printf ("Written %lld bytes of %p in %s\n",(long long) n,p,tr[0+overwrite]);
+}
+
+void Cmd_memdump(char *tr[]){
+    void *p;
+    size_t cont;
+    if (tr[0]==NULL || tr[1]==NULL){
+        printf ("Not enough parameters\n");
+        return;
+    }
+
+    if((p = strtop(tr[0])) == NULL){ /*convertimos de cadena a puntero*/
+        printf("Invalid address\n");
+        return;
+    }  
+    
+    cont=(size_t) atoll(tr[2]);
+
+    for(int i = 0; i < cont; i++){ //intento de hacerlo facil (spoiler: no)
+        printf("%c  ", *((char*)p));
+        p += 1;
+    }
+}
+
 /*
 void Do_MemPmap (void) //sin argumentos
  { pid_t pid;       //hace el pmap (o equivalente) del proceso actual

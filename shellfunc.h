@@ -39,3 +39,6 @@ bool Do_chdir(char* name);
 void Cmd_malloc (char* tr[], List3* memlist);
 void Cmd_shared (char* tr[], List3* memlist);
 void Cmd_mmap (char *tr[], List3* memlist);
+void Cmd_read (char *tr[]);
+void Cmd_write (char *tr[]);
+void Cmd_memdump(char *tr[]);

@@ -88,7 +88,7 @@ bool deleteBySize3(List3* List3, size_t size){
 
 bool deleteByKey3(List3* List3, key_t key){
     Pos3 q;
-    if(!strcmp((*List3)->data.type, "shared") && (*List3)->data.cl==key){    printf("DF: %d\n", df);
+    if(!strcmp((*List3)->data.type, "shared") && (*List3)->data.cl==key){
 
         q = NULL;
     }
