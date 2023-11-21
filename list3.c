@@ -135,3 +135,18 @@ void printList3(List3 List3, char * type){
         }
     }
 }
+
+void printAllList3(List3 List3){
+    if (List3==NULL){
+        return;
+    }else {
+        Pos3 q;
+        for (q = List3; q != NULL; q = q->next) {
+            printf("%14p%15ld%20s%10s", q->data.address, q->data.size, q->data.timeAlloc, q->data.type); //print only of the type asked
+            if (!strcmp(q->data.type, "shared")&&q->data.cl!=-1) printf("%8d", q->data.cl); //if shared also print key
+            if (!strcmp(q->data.type, "mapped")&&q->data.df!=-1) printf("%8d", q->data.df); //if map also print descriptor
+            printf("\n");
+        }
+    }
+}
+

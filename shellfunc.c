@@ -36,6 +36,8 @@ void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles, List3*
             {"read", Cmd_read},
             {"write", Cmd_write},
             {"memdump", Cmd_memdump},
+            {"memfill", Cmd_memfill},
+            {"recurse", Cmd_recurse},
             {NULL,NULL}
     };
 
@@ -74,6 +76,9 @@ void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles, List3*
             return;
         }else if (!strcmp (tr[0], "mmap")) {
             Cmd_mmap(tr + 1, memlist);
+            return;
+        }else if (!strcmp (tr[0], "mem")) {
+            Cmd_mem(tr + 1, memlist);
             return;
         }else if (!strcmp(tr[0], C[i].name)) { //Cases where commands don't need anything else
             (*C[i].func)(tr + 1);

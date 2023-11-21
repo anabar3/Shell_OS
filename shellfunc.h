@@ -42,3 +42,6 @@ void Cmd_mmap (char *tr[], List3* memlist);
 void Cmd_read (char *tr[]);
 void Cmd_write (char *tr[]);
 void Cmd_memdump(char *tr[]);
+void Cmd_memfill(char* tr[]);
+void Cmd_recurse(char *tr[]);
+void Cmd_mem(char *tr[], List3* memlist);

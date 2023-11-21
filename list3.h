@@ -23,9 +23,9 @@ typedef Node3* Pos3;
 typedef Pos3 List3;
 
 void createList3(List3* List3);
-Pos3 find3 (List3 List3, size_t size);
 bool insert3(List3* List3, data3);
 bool deleteBySize3(List3* List3, size_t size);
 bool deleteByKey3(List3* List3, key_t key);
 bool deleteByDf3(List3* List3, int df);
 void printList3(List3 List3, char* type);
+void printAllList3(List3 List3);
