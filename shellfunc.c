@@ -244,7 +244,7 @@ void Cmd_help (char* tr[]){
 
             {"listopen",": Lists the shell open files. For each file it lists its descriptor, the file "
                         "name and the opening mode."},
-            {"create","[-f] name Creates a directory or a file (last one in case -f)"},
+            {"create","[-f] name : Creates a directory or a file (last one in case -f)"},
             {"stat", "[-long][-link] [-acc] : name1 name2 ...Gives information on a file or directory."
                     "-long : long list\n-acc : access time\n-link : if it is symbolic link, the path contained"},
             {"list"," [-long][-link] [-acc] [-reca] [-recb] name1 name2 ... : Lists contents of directories."
@@ -252,6 +252,22 @@ void Cmd_help (char* tr[]){
                     "-recb : recursive (before)\n -reca : recursive (after)\n -hid : includes hidden files"},
             {"delete", "[name1 name2 ...] : Deletes files or empty directories"},
             {"deltree", "[name1 name2 ...] : Deletes files or non-empty directories recursively"},
+            {"malloc", "[-free] tam : Allocates a memory block of size tam with malloc\n"
+                       "- free: unassigns a memory block of size tam allocated with malloc"}
+            {"shared", "[-free|-create|-delkey] cl tam : Allocates shared memory with key cl in the program\n"
+                       "-create cl tam: allocates (creating) the memory block with key cl and size tam\n"
+                       "-free cl : unmaps the shared memory block of key cl\n"
+                       "-delkey cl: removes from system (without unmapping) the memory key cl"}
+            {"mmap", "[-free] fich prm : Maps the file fich with permissions prm\n"
+                     "- free fich : unmmaps the file fich"}
+            {"read", "fiche addr cont : Reads cont bytes from file fich to address addr"}
+            {"write", "[-o] fiche addr cont : Writes cont bytes from file fich to address addr (-o overwrites)"}
+            {"memdump", "addr cont : Dumps in screen contents (cont bytes) of memory position addr"}
+            {"memfill", "addr cont byte : Fills memory from addr with byte"}
+            {"mem", "[-blocks|-funcs|-vars|-all|-pmap] : Shows details of process memory\n"
+                    "-blocks : memory blocks allocated\n-funcs : addresses of functions\n"
+                    "-vars : addresses of variables\n-all: everything\n-pmap : shows output of command pmap (or similar)"}
+            {"recurse", "n : Calls recursive function n times"}
             {NULL,NULL}
     };
 
