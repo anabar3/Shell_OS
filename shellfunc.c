@@ -14,7 +14,7 @@ int CutCommand(char *cadena, char* trozos[]){  //Create an array of strings with
     return i; //Returns number of parts of the command
 }
 
-void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles){ //Takes the array of strings (divided command)
+void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles, List3* memlist){ //Takes the array of strings (divided command)
 
     int i;
     static struct CMD C[]={ //Array C of struct CMD {name, function}
@@ -33,6 +33,11 @@ void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles){ //Tak
             {"list", Cmd_list},
             {"delete", Cmd_delete},
             {"deltree", Cmd_deltree},
+            {"read", Cmd_read},
+            {"write", Cmd_write},
+            {"memdump", Cmd_memdump},
+            {"memfill", Cmd_memfill},
+            {"recurse", Cmd_recurse},
             {NULL,NULL}
     };
 
@@ -49,7 +54,7 @@ void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles){ //Tak
             Cmd_hist(tr + 1, his);
             return;
         } else if(!strcmp(tr[0], "command")) {
-            Cmd_command(tr + 1, his, openFiles);
+            Cmd_command(tr + 1, his, openFiles, memlist);
             return;
         }else if (!strcmp (tr[0], "open")) {
             Cmd_open(tr + 1, openFiles);
@@ -63,8 +68,19 @@ void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles){ //Tak
         }else if (!strcmp (tr[0], "listopen")) {
             Cmd_listopen(tr + 1, *openFiles);
             return;
-        }
-        else if (!strcmp(tr[0], C[i].name)) { //Cases where commands don't need anything else
+        }else if (!strcmp (tr[0], "malloc")) {
+            Cmd_malloc(tr + 1, memlist);
+            return;
+        }else if (!strcmp (tr[0], "shared")) {
+            Cmd_shared(tr + 1, memlist);
+            return;
+        }else if (!strcmp (tr[0], "mmap")) {
+            Cmd_mmap(tr + 1, memlist);
+            return;
+        }else if (!strcmp (tr[0], "mem")) {
+            Cmd_mem(tr + 1, memlist);
+            return;
+        }else if (!strcmp(tr[0], C[i].name)) { //Cases where commands don't need anything else
             (*C[i].func)(tr + 1);
             return;
         }
@@ -160,7 +176,7 @@ void Cmd_hist(char *tr[], List* his){
     else printf("Error: Invalid argument\n");
 }
 
-void Cmd_command (char *tr[], List* his, List2* openFiles){
+void Cmd_command (char *tr[], List* his, List2* openFiles, List3* memlist){
     if (atoi(tr[0])!=0 &&(tr[0]!= NULL)){
         int numcomm = numberOfCommands(*his) - 1;
         int numindex = atoi(tr[0]);
@@ -174,7 +190,7 @@ void Cmd_command (char *tr[], List* his, List2* openFiles){
             return;
         }
         CutCommand(tmp1, tr1);
-        ProcessCommand(tmp1,tr1, his, openFiles);
+        ProcessCommand(tmp1,tr1, his, openFiles, memlist);
     }else if (atoi(tr[0]) == 0){
         printf("Error : Command number not found\n");
     }
@@ -228,7 +244,7 @@ void Cmd_help (char* tr[]){
 
             {"listopen",": Lists the shell open files. For each file it lists its descriptor, the file "
                         "name and the opening mode."},
-            {"create","[-f] name Creates a directory or a file (last one in case -f)"},
+            {"create","[-f] name : Creates a directory or a file (last one in case -f)"},
             {"stat", "[-long][-link] [-acc] : name1 name2 ...Gives information on a file or directory."
                     "-long : long list\n-acc : access time\n-link : if it is symbolic link, the path contained"},
             {"list"," [-long][-link] [-acc] [-reca] [-recb] name1 name2 ... : Lists contents of directories."
@@ -236,6 +252,22 @@ void Cmd_help (char* tr[]){
                     "-recb : recursive (before)\n -reca : recursive (after)\n -hid : includes hidden files"},
             {"delete", "[name1 name2 ...] : Deletes files or empty directories"},
             {"deltree", "[name1 name2 ...] : Deletes files or non-empty directories recursively"},
+            {"malloc", "[-free] tam : Allocates a memory block of size tam with malloc\n"
+                       "- free: unassigns a memory block of size tam allocated with malloc"}
+            {"shared", "[-free|-create|-delkey] cl tam : Allocates shared memory with key cl in the program\n"
+                       "-create cl tam: allocates (creating) the memory block with key cl and size tam\n"
+                       "-free cl : unmaps the shared memory block of key cl\n"
+                       "-delkey cl: removes from system (without unmapping) the memory key cl"}
+            {"mmap", "[-free] fich prm : Maps the file fich with permissions prm\n"
+                     "- free fich : unmmaps the file fich"}
+            {"read", "fiche addr cont : Reads cont bytes from file fich to address addr"}
+            {"write", "[-o] fiche addr cont : Writes cont bytes from file fich to address addr (-o overwrites)"}
+            {"memdump", "addr cont : Dumps in screen contents (cont bytes) of memory position addr"}
+            {"memfill", "addr cont byte : Fills memory from addr with byte"}
+            {"mem", "[-blocks|-funcs|-vars|-all|-pmap] : Shows details of process memory\n"
+                    "-blocks : memory blocks allocated\n-funcs : addresses of functions\n"
+                    "-vars : addresses of variables\n-all: everything\n-pmap : shows output of command pmap (or similar)"}
+            {"recurse", "n : Calls recursive function n times"}
             {NULL,NULL}
     };
 
