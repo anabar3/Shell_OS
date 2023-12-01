@@ -23,13 +23,16 @@ int main(){
 
     List3 memlist;
     createList3 (&memlist);
+
+    List4 proclist;
+    createList4(&proclist);
     
     while (1) {
         printf("\n-->");
         fgets(linea,200,stdin);
         strcpy (tmp,linea); //make a copy of linea for the list before cutting it
         CutCommand(linea,tr);
-        ProcessCommand(tmp,tr, &his, &openFiles, &memlist);
+        ProcessCommand(tmp,tr, &his, &openFiles, &memlist, &proclist);
     }
 }
  

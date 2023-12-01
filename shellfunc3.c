@@ -4,3 +4,6 @@
 
 #include "shellfunc.h"
 
+Cmd_uid (char* tr[], List4* proclist){
+    
+}

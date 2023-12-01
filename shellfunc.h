@@ -6,6 +6,7 @@
 #include "list1.h"
 #include "list2.h"
 #include "list3.h"
+#include "list4.h"
 
 struct CMD{
     char * name;
@@ -45,3 +46,4 @@ void Cmd_memdump(char *tr[]);
 void Cmd_memfill(char* tr[]);
 void Cmd_recurse(char *tr[]);
 void Cmd_mem(char *tr[], List3* memlist);
+void Cmd_uid(char*tr[], List4* proclist);

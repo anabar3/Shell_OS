@@ -14,7 +14,7 @@ int CutCommand(char *cadena, char* trozos[]){  //Create an array of strings with
     return i; //Returns number of parts of the command
 }
 
-void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles, List3* memlist){ //Takes the array of strings (divided command)
+void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles, List3* memlist, List4* proclist){ //Takes the array of strings (divided command)
 
     int i;
     static struct CMD C[]={ //Array C of struct CMD {name, function}
@@ -79,6 +79,9 @@ void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles, List3*
             return;
         }else if (!strcmp (tr[0], "mem")) {
             Cmd_mem(tr + 1, memlist);
+            return;
+        }else if (!strcmp (tr[0], "uid")) {
+            Cmd_uid(tr + 1, proclist);
             return;
         }else if (!strcmp(tr[0], C[i].name)) { //Cases where commands don't need anything else
             (*C[i].func)(tr + 1);
