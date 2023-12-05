@@ -1,3 +1,6 @@
+#ifndef BASIC_H
+#define BASIC_H
+
 //AUTHORS - Group 6.1 - 28/09/2023
 //Name: Javier Carballal Morgade    Login: javier.carballal.morgade@udc.es
 //Name: Ana Barrera Novas           Login: ana.barrera@udc.es
@@ -25,3 +28,5 @@
 #define MAXFILENAME 256
 #define MAXDATE 17
 #define MAXDIRNAME 65536
+
+#endif

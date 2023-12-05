@@ -1,3 +1,6 @@
+#ifndef SHELLFUNC_H
+#define SHELLFUNC_H
+
 //AUTHORS - Group 6.1 - 28/09/2023
 //Name: Javier Carballal Morgade    Login: javier.carballal.morgade@udc.es
 //Name: Ana Barrera Novas           Login: ana.barrera@udc.es
@@ -14,7 +17,7 @@ struct CMD{
 };
 
 int CutCommand(char *cadena, char* trozos[]);
-void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles, List3* memlist);
+void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles, List3* memlist, List4* proclist);
 
 void Cmd_authors (char *tr[]);
 void Cmd_quit (char *tr[]);
@@ -23,7 +26,7 @@ void Cmd_chdir (char *tr[]);
 void Cmd_date (char *tr[]);
 void Cmd_time (char *tr[]);
 void Cmd_hist(char *tr[], List* his);
-void Cmd_command (char *tr[], List* his, List2* openFiles, List3* memlist);
+void Cmd_command (char *tr[], List* his, List2* openFiles, List3* memlist, List4* proclist);
 void Cmd_help (char* tr[]);
 void Cmd_infosys(char* tr[]);
 void Cmd_listopen(char* tr[], List2 openFiles);
@@ -46,4 +49,7 @@ void Cmd_memdump(char *tr[]);
 void Cmd_memfill(char* tr[]);
 void Cmd_recurse(char *tr[]);
 void Cmd_mem(char *tr[], List3* memlist);
-void Cmd_uid(char*tr[], List4* proclist);
+char* User(uid_t uid);
+void Cmd_uid(char* tr[]);
+
+#endif

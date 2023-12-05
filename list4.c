@@ -1,4 +1,5 @@
 #include "list4.h"
+#include "shellfunc.h"
 
 void createList4(List4* List4){
     *List4 = NULL;
@@ -40,7 +41,7 @@ void printList4(List4 List4){
         printf("%5s%10s%15s%13s%13s\n", "Pid", "Date", "Status", "Command", "Priority");
         Pos4 q;
         for (q = List4; q != NULL; q = q->next) {
-            printf("%5d%15ld%15s%15s%15d\n", q->data.pid, Date(q->data.date), q->data.status, q->data.cmdline, q->data.priority);
+            printf("%5d%15s%15s%15d\n", q->data.pid, Date(q->data.date), q->data.cmdline, q->data.priority);
         }
     }
 }

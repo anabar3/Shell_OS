@@ -1,3 +1,6 @@
+#ifndef LIST1_H
+#define LIST1_H
+
 //AUTHORS - Group 6.1 - 28/09/2023
 //Name: Javier Carballal Morgade    Login: javier.carballal.morgade@udc.es
 //Name: Ana Barrera Novas           Login: ana.barrera@udc.es
@@ -24,3 +27,5 @@ void removeList(List* List);
 void printList(List List, int Nshow);
 char* getItem(List List, int Nshow);
 int numberOfCommands(List List);
+
+#endif

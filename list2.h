@@ -1,3 +1,6 @@
+#ifndef LIST2_H
+#define LIST2_H
+
 //AUTHORS - Group 6.1 - 28/09/2023
 //Name: Javier Carballal Morgade    Login: javier.carballal.morgade@udc.es
 //Name: Ana Barrera Novas           Login: ana.barrera@udc.es
@@ -23,3 +26,5 @@ bool insertOpenFile(List2* List2, int desc, char* name, int mode);
 bool deleteNodeOpen(List2* List2, int desc);
 bool duplicateNode (List2* List2, int desc, int newdesc);
 void printList2(List2 List2);
+
+#endif

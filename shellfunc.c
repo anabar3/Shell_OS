@@ -38,6 +38,7 @@ void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles, List3*
             {"memdump", Cmd_memdump},
             {"memfill", Cmd_memfill},
             {"recurse", Cmd_recurse},
+            {"uid", Cmd_uid},
             {NULL,NULL}
     };
 
@@ -54,7 +55,7 @@ void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles, List3*
             Cmd_hist(tr + 1, his);
             return;
         } else if(!strcmp(tr[0], "command")) {
-            Cmd_command(tr + 1, his, openFiles, memlist);
+            Cmd_command(tr + 1, his, openFiles, memlist, proclist);
             return;
         }else if (!strcmp (tr[0], "open")) {
             Cmd_open(tr + 1, openFiles);
@@ -79,9 +80,6 @@ void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles, List3*
             return;
         }else if (!strcmp (tr[0], "mem")) {
             Cmd_mem(tr + 1, memlist);
-            return;
-        }else if (!strcmp (tr[0], "uid")) {
-            Cmd_uid(tr + 1, proclist);
             return;
         }else if (!strcmp(tr[0], C[i].name)) { //Cases where commands don't need anything else
             (*C[i].func)(tr + 1);
@@ -179,7 +177,7 @@ void Cmd_hist(char *tr[], List* his){
     else printf("Error: Invalid argument\n");
 }
 
-void Cmd_command (char *tr[], List* his, List2* openFiles, List3* memlist){
+void Cmd_command (char *tr[], List* his, List2* openFiles, List3* memlist, List4* proclist){
     if (atoi(tr[0])!=0 &&(tr[0]!= NULL)){
         int numcomm = numberOfCommands(*his) - 1;
         int numindex = atoi(tr[0]);
@@ -193,7 +191,7 @@ void Cmd_command (char *tr[], List* his, List2* openFiles, List3* memlist){
             return;
         }
         CutCommand(tmp1, tr1);
-        ProcessCommand(tmp1,tr1, his, openFiles, memlist);
+        ProcessCommand(tmp1,tr1, his, openFiles, memlist, proclist);
     }else if (atoi(tr[0]) == 0){
         printf("Error : Command number not found\n");
     }
@@ -256,21 +254,21 @@ void Cmd_help (char* tr[]){
             {"delete", "[name1 name2 ...] : Deletes files or empty directories"},
             {"deltree", "[name1 name2 ...] : Deletes files or non-empty directories recursively"},
             {"malloc", "[-free] tam : Allocates a memory block of size tam with malloc\n"
-                       "- free: unassigns a memory block of size tam allocated with malloc"}
+                       "- free: unassigns a memory block of size tam allocated with malloc"},
             {"shared", "[-free|-create|-delkey] cl tam : Allocates shared memory with key cl in the program\n"
                        "-create cl tam: allocates (creating) the memory block with key cl and size tam\n"
                        "-free cl : unmaps the shared memory block of key cl\n"
-                       "-delkey cl: removes from system (without unmapping) the memory key cl"}
+                       "-delkey cl: removes from system (without unmapping) the memory key cl"},
             {"mmap", "[-free] fich prm : Maps the file fich with permissions prm\n"
-                     "- free fich : unmmaps the file fich"}
-            {"read", "fiche addr cont : Reads cont bytes from file fich to address addr"}
-            {"write", "[-o] fiche addr cont : Writes cont bytes from file fich to address addr (-o overwrites)"}
-            {"memdump", "addr cont : Dumps in screen contents (cont bytes) of memory position addr"}
-            {"memfill", "addr cont byte : Fills memory from addr with byte"}
+                     "- free fich : unmmaps the file fich"},
+            {"read", "fiche addr cont : Reads cont bytes from file fich to address addr"},
+            {"write", "[-o] fiche addr cont : Writes cont bytes from file fich to address addr (-o overwrites)"},
+            {"memdump", "addr cont : Dumps in screen contents (cont bytes) of memory position addr"},
+            {"memfill", "addr cont byte : Fills memory from addr with byte"},
             {"mem", "[-blocks|-funcs|-vars|-all|-pmap] : Shows details of process memory\n"
                     "-blocks : memory blocks allocated\n-funcs : addresses of functions\n"
-                    "-vars : addresses of variables\n-all: everything\n-pmap : shows output of command pmap (or similar)"}
-            {"recurse", "n : Calls recursive function n times"}
+                    "-vars : addresses of variables\n-all: everything\n-pmap : shows output of command pmap (or similar)"},
+            {"recurse", "n : Calls recursive function n times"},
             {NULL,NULL}
     };
 
