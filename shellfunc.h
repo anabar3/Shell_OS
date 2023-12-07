@@ -17,7 +17,7 @@ struct CMD{
 };
 
 int CutCommand(char *cadena, char* trozos[]);
-void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles, List3* memlist, List4* proclist);
+void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles, List3* memlist, List4* proclist, char *envp[]);
 
 void Cmd_authors (char *tr[]);
 void Cmd_quit (char *tr[]);
@@ -26,7 +26,7 @@ void Cmd_chdir (char *tr[]);
 void Cmd_date (char *tr[]);
 void Cmd_time (char *tr[]);
 void Cmd_hist(char *tr[], List* his);
-void Cmd_command (char *tr[], List* his, List2* openFiles, List3* memlist, List4* proclist);
+void Cmd_command (char *tr[], List* his, List2* openFiles, List3* memlist, List4* proclist, char *envp[]);
 void Cmd_help (char* tr[]);
 void Cmd_infosys(char* tr[]);
 void Cmd_listopen(char* tr[], List2 openFiles);
@@ -51,5 +51,9 @@ void Cmd_recurse(char *tr[]);
 void Cmd_mem(char *tr[], List3* memlist);
 char* User(uid_t uid);
 void Cmd_uid(char* tr[]);
+void Cmd_showvar(char* tr[], char *envp[]);
+void Cmd_changevar(char * tr[], char *envp[]);
+void Cmd_subsvar(char * tr[], char *envp[]);
+void Cmd_showenv (char * tr[], char *envp[]);
 
 #endif

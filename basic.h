@@ -28,5 +28,6 @@
 #define MAXFILENAME 256
 #define MAXDATE 17
 #define MAXDIRNAME 65536
+#define MAXVAR 4096
 
 #endif

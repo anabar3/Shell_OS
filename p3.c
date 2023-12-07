@@ -7,7 +7,7 @@
 
 
 
-int main(){
+int main(int argc, char *argv[], char *envp[]){
     char linea[MAXLINEA];
     char* tr[MAXLINEA/2]; //array of strings (pointer to first element of array of chars)
     char tmp[MAXLINEA];
@@ -32,7 +32,7 @@ int main(){
         fgets(linea,200,stdin);
         strcpy (tmp,linea); //make a copy of linea for the list before cutting it
         CutCommand(linea,tr);
-        ProcessCommand(tmp,tr, &his, &openFiles, &memlist, &proclist);
+        ProcessCommand(tmp,tr, &his, &openFiles, &memlist, &proclist, envp);
     }
 }
  

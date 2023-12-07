@@ -14,7 +14,7 @@ int CutCommand(char *cadena, char* trozos[]){  //Create an array of strings with
     return i; //Returns number of parts of the command
 }
 
-void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles, List3* memlist, List4* proclist){ //Takes the array of strings (divided command)
+void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles, List3* memlist, List4* proclist,char *envp[]){ //Takes the array of strings (divided command)
 
     int i;
     static struct CMD C[]={ //Array C of struct CMD {name, function}
@@ -55,7 +55,7 @@ void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles, List3*
             Cmd_hist(tr + 1, his);
             return;
         } else if(!strcmp(tr[0], "command")) {
-            Cmd_command(tr + 1, his, openFiles, memlist, proclist);
+            Cmd_command(tr + 1, his, openFiles, memlist, proclist, envp);
             return;
         }else if (!strcmp (tr[0], "open")) {
             Cmd_open(tr + 1, openFiles);
@@ -81,10 +81,23 @@ void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles, List3*
         }else if (!strcmp (tr[0], "mem")) {
             Cmd_mem(tr + 1, memlist);
             return;
+        }else if (!strcmp (tr[0],"showvar")) {
+            Cmd_showvar(tr +1, envp);
+            return;
+        }else if (!strcmp (tr[0],"changevar")) {
+            Cmd_changevar(tr +1, envp);
+            return;
+        }else if (!strcmp (tr[0],"subsvar")) {
+            Cmd_subsvar(tr +1, envp);
+            return;
+        }else if (!strcmp (tr[0],"showenv")) {
+            Cmd_showenv(tr +1, envp);
+            return;
         }else if (!strcmp(tr[0], C[i].name)) { //Cases where commands don't need anything else
             (*C[i].func)(tr + 1);
             return;
         }
+
     }
     printf("Error: invalid command\n");
 }
@@ -177,7 +190,7 @@ void Cmd_hist(char *tr[], List* his){
     else printf("Error: Invalid argument\n");
 }
 
-void Cmd_command (char *tr[], List* his, List2* openFiles, List3* memlist, List4* proclist){
+void Cmd_command (char *tr[], List* his, List2* openFiles, List3* memlist, List4* proclist, char *envp[]){
     if (atoi(tr[0])!=0 &&(tr[0]!= NULL)){
         int numcomm = numberOfCommands(*his) - 1;
         int numindex = atoi(tr[0]);
@@ -191,7 +204,7 @@ void Cmd_command (char *tr[], List* his, List2* openFiles, List3* memlist, List4
             return;
         }
         CutCommand(tmp1, tr1);
-        ProcessCommand(tmp1,tr1, his, openFiles, memlist, proclist);
+        ProcessCommand(tmp1,tr1, his, openFiles, memlist, proclist, envp);
     }else if (atoi(tr[0]) == 0){
         printf("Error : Command number not found\n");
     }
