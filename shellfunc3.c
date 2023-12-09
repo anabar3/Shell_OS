@@ -178,6 +178,77 @@ void Cmd_subsvar(char * tr[], char *envp[]){
 
 
 void Cmd_showenv (char * tr[], char *envp[]){
+    if (tr[0] == NULL){
+        for(int i = 0; envp[i] != NULL; i++){
+            printf("%p->main arg3[%d]=(%p) %s\n", &envp[i], i, envp[i], envp[i]); 
+        }
+        return;
+    }
+    if (!strcmp(tr[0], "-addr")){
+        printf("environ: %p (stored in %p)\n", __environ, &__environ);
+        printf("main arg3: %p (stored in %p)\n", envp, &envp);
+        return;  
+    }
+    if (!strcmp(tr[0], "-environ")){
+        for(int i = 0; __environ[i] != NULL; i++){
+            printf("%p->environ[%d]=(%p) %s\n", &__environ[i], i, __environ[i], __environ[i]);
+        }
+        return;
+    }
+}
 
-    
+void Cmd_fork (char *tr[], List4* proclist){ //queda en standby hasta que tengamos lista de procesos
+	pid_t pid;
+	
+	if ((pid=fork())==0){
+		deleteStatus4(proclist, NULL);
+		printf ("ejecutando proceso %d\n", getpid());
+        printList4(*proclist);
+	}
+	else if (pid!=-1)
+		waitpid (pid,NULL,0);
+}
+
+void Cmd_exec (char* tr []){
+    if (execvp (tr[0], tr)==-1){
+        perror("Could not execute");
+        return;
+    }
+}
+
+void Cmd_jobs(char* tr[], List4* proclist){
+    printList4(*proclist);
+    return;
+}
+
+void Cmd_deljobs(char* tr[], List4* proclist){
+    if (tr[0] == NULL){ //por ahora no hace nada 
+        printf("Invalid argument\n");
+        return;
+    }
+    if (!strcmp(tr[0],"-term")){
+        //char* status = malloc(9*sizeof(char));
+        //strcpy(status, "FINISHED");
+        deleteStatus4(proclist, "FINISHED");
+        //free(status);
+        return;
+    }
+    if (!strcmp(tr[0],"-sig")){
+        deleteStatus4(proclist, "SIGNALED");
+        return;
+    }
+}
+
+void Cmd_job (char* tr[], List4* proclist){
+    if (tr[0]==NULL){
+        printf("Invalid argument\n");
+        return;
+    }
+    if (!strcmp(tr[0], "-fg")){
+
+    }
+    else{
+        int pid = atoi(tr[0]);
+        printByPid(*proclist,pid);
+    }
 }

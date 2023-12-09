@@ -3,17 +3,10 @@
 
 #include "basic.h"
 
-struct status{
-    bool finished;
-    bool stopped;
-    bool signaled;
-    bool active;
-};
-
 typedef struct data4{
     int pid;
     time_t date;
-    struct status status; //o hacerlo con char y pista
+    char* status;
     char* cmdline;
     int priority;
 }data4;
@@ -29,5 +22,8 @@ typedef Pos4 List4;
 void createList4(List4* List4);
 bool insert4(List4* List4, data4);
 void printList4(List4 List4);
+bool deleteStatus4(List4* List4, char* status);
+void printByPid(List4 List4, int pid);
+
 
 #endif

@@ -55,5 +55,10 @@ void Cmd_showvar(char* tr[], char *envp[]);
 void Cmd_changevar(char * tr[], char *envp[]);
 void Cmd_subsvar(char * tr[], char *envp[]);
 void Cmd_showenv (char * tr[], char *envp[]);
+void Cmd_fork(char * tr[], List4* proclist);
+void Cmd_exec (char* tr []);
+void Cmd_jobs(char* tr[], List4* proclist);
+void Cmd_deljobs(char* tr[], List4* proclist);
+void Cmd_job (char* tr[], List4* proclist);
 
 #endif

@@ -39,6 +39,7 @@ void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles, List3*
             {"memfill", Cmd_memfill},
             {"recurse", Cmd_recurse},
             {"uid", Cmd_uid},
+            {"exec", Cmd_exec},
             {NULL,NULL}
     };
 
@@ -92,6 +93,18 @@ void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles, List3*
             return;
         }else if (!strcmp (tr[0],"showenv")) {
             Cmd_showenv(tr +1, envp);
+            return;
+        }else if (!strcmp (tr[0],"fork")) {
+            Cmd_fork(tr +1, proclist);
+            return;
+        }else if (!strcmp (tr[0],"jobs")) {
+            Cmd_jobs(tr +1, proclist);
+            return;
+        }else if (!strcmp (tr[0],"deljobs")) {
+            Cmd_deljobs(tr +1, proclist);
+            return;
+        }else if (!strcmp (tr[0],"job")) {
+            Cmd_job(tr +1, proclist);
             return;
         }else if (!strcmp(tr[0], C[i].name)) { //Cases where commands don't need anything else
             (*C[i].func)(tr + 1);
