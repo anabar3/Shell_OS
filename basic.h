@@ -23,6 +23,7 @@
 #include <sys/shm.h>
 #include <sys/mman.h>
 #include <sys/wait.h>
+#include <sys/resource.h>
 
 #define MAXLINEA 2048
 #define MAXFILENAME 256

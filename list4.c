@@ -18,8 +18,8 @@ bool insert4(List4* List4, data4 input){
     q->data.pid = input.pid;
     q->data.date = input.date;
     strcpy(q->data.status,input.status);
+    q->data.cmdline = malloc(MAXLINEA*sizeof(char));
     strcpy(q->data.cmdline,input.cmdline);
-    q->data.priority = input.priority;
     q->next=NULL;
     
 
@@ -33,16 +33,40 @@ bool insert4(List4* List4, data4 input){
     return true;
 }
 
+void updateStatus(Pos4 node){        //SIGNALED WITH ./PRUEBA, IT SHOULD BE FINISHED
+    int status;
+    waitpid(node->data.pid, &status, WNOHANG | WUNTRACED | __W_CONTINUED);
+    if (WIFEXITED(status)){
+        strcpy(node->data.status, "FINISHED");
+    }else if (WIFSIGNALED(status)){
+        strcpy(node->data.status, "SIGNALED");
+    }else if (WIFSTOPPED(status)){
+        strcpy(node->data.status, "STOPPED");
+    /*}else if (WIFCONTINUED){   According to c manual, we could use this macro, but our system doesn't recognise it
+        strcpy(node->data.status, "ACTIVE");*/
+    }
+}
+
+int getPriority(int pid){
+    errno = 0;
+    int prio = getpriority (PRIO_PROCESS, pid);
+    if(prio == -1 && errno != 0){ //need to check if -1 is from error or from priority
+        perror("Could not get priority");
+    }
+    return prio;
+}
+
 
 void printList4(List4 List4){
     if (List4==NULL){
         printf("List is empty\n");
         return;
     }else {
-        printf("%5s%10s%15s%13s%13s\n", "Pid", "Date", "Status", "Command", "Priority");
+        printf("%7s%10s%15s%13s%13s\n", "Pid", "Date", "Status", "Priority", "Command");
         Pos4 q;
         for (q = List4; q != NULL; q = q->next) {
-            printf("%5d%15s%15s%15s%15d\n", q->data.pid, Date(q->data.date), q->data.status, q->data.cmdline, q->data.priority);
+            updateStatus(q);
+            printf("%7d%25s%15s%15d%15s\n", q->data.pid, Date(q->data.date), q->data.status, getPriority(q->data.pid), q->data.cmdline);
         }
     }
 }
@@ -55,7 +79,8 @@ void printByPid(List4 List4, int pid){
     Pos4 q;
     for (q = List4; q != NULL; q = q->next) {
         if(q->data.pid == pid){
-            printf("%5d%15s%15s%15s%15d\n", q->data.pid, Date(q->data.date), q->data.status, q->data.cmdline, q->data.priority);
+            updateStatus(q);
+            printf("%7d%25s%15s%15d%15s\n", q->data.pid, Date(q->data.date), q->data.status, getPriority(q->data.pid), q->data.cmdline);
             return;
         }
     }

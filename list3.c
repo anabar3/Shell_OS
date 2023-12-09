@@ -15,8 +15,6 @@ bool createNode3 (Pos3 *q){
     return *q !=NULL;
 }
 
-
-
 bool insert3(List3* List3, data3 input){
     Pos3 q;
 

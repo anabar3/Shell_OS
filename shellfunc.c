@@ -112,7 +112,7 @@ void ProcessCommand(char* linea, char *tr[], List* his, List2* openFiles, List3*
         }
 
     }
-    printf("Error: invalid command\n");
+    Cmd_execute(linea,tr, proclist);
 }
 
 

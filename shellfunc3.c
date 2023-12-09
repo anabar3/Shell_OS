@@ -227,10 +227,7 @@ void Cmd_deljobs(char* tr[], List4* proclist){
         return;
     }
     if (!strcmp(tr[0],"-term")){
-        //char* status = malloc(9*sizeof(char));
-        //strcpy(status, "FINISHED");
         deleteStatus4(proclist, "FINISHED");
-        //free(status);
         return;
     }
     if (!strcmp(tr[0],"-sig")){
@@ -245,10 +242,36 @@ void Cmd_job (char* tr[], List4* proclist){
         return;
     }
     if (!strcmp(tr[0], "-fg")){
-
+        waitpid(atoi(tr[1]), NULL, 0);
     }
     else{
         int pid = atoi(tr[0]);
         printByPid(*proclist,pid);
+    }
+}
+
+bool checkbg(char* tr[]){
+    int i;
+    for(i = 0; tr[i+1] != NULL; i++);
+    return !strcmp(tr[i], "&");
+}
+
+void Cmd_execute (char* linea, char* tr[], List4* proclist){
+    if(checkbg(tr)){ //termina en &
+        pid_t pid;
+        if ((pid=fork())==0)
+            Cmd_exec(tr);
+
+        data4 node = {
+            pid, time(NULL), "ACTIVE", linea
+        };
+        insert4(proclist, node);
+    }else{
+        pid_t pid;
+	
+        if ((pid=fork())==0)
+            Cmd_exec(tr);
+        else if (pid!=-1)
+            waitpid (pid,NULL,0);
     }
 }

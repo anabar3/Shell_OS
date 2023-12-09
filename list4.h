@@ -6,9 +6,8 @@
 typedef struct data4{
     int pid;
     time_t date;
-    char* status;
+    char status[9];
     char* cmdline;
-    int priority;
 }data4;
 
 typedef struct Node4{
