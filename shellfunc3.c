@@ -4,6 +4,7 @@
 
 #include "shellfunc.h"
 
+extern char **environ;
 
 uid_t Name(char* name){ 
     struct passwd *pws;
@@ -88,8 +89,8 @@ void Cmd_showvar(char * tr[], char *envp[]){
     varIndex = BuscarVariable(tr[0], envp);
     printf("With arg3 main: %s(%p) @%p\n", envp[varIndex], envp[varIndex], &envp[varIndex]);
 
-    varIndex = BuscarVariable(tr[0], __environ);
-    printf("With environ:   %s(%p) @%p\n", __environ[varIndex], __environ[varIndex], &__environ[varIndex]);
+    varIndex = BuscarVariable(tr[0], environ);
+    printf("With environ:   %s(%p) @%p\n", environ[varIndex], environ[varIndex], &environ[varIndex]);
     
     char* var = getenv(tr[0]);
     if(var == NULL){
@@ -144,7 +145,7 @@ void Cmd_changevar(char * tr[], char *envp[]){
         return;
     }
     if (!strcmp(tr[0], "-e")){
-        CambiarVariable(tr[1], tr[2], __environ);
+        CambiarVariable(tr[1], tr[2], environ);
         return;
     }
     if (!strcmp(tr[0], "-p")){
@@ -171,7 +172,7 @@ void Cmd_subsvar(char * tr[], char *envp[]){
         return;
     }
     if (!strcmp(tr[0], "-e")){
-        SubsVariable(tr[1], tr[2], tr[3], __environ);
+        SubsVariable(tr[1], tr[2], tr[3], environ);
         return;
     }
 }
@@ -185,13 +186,13 @@ void Cmd_showenv (char * tr[], char *envp[]){
         return;
     }
     if (!strcmp(tr[0], "-addr")){
-        printf("environ: %p (stored in %p)\n", __environ, &__environ);
+        printf("environ: %p (stored in %p)\n", environ, &environ);
         printf("main arg3: %p (stored in %p)\n", envp, &envp);
         return;  
     }
     if (!strcmp(tr[0], "-environ")){
-        for(int i = 0; __environ[i] != NULL; i++){
-            printf("%p->environ[%d]=(%p) %s\n", &__environ[i], i, __environ[i], __environ[i]);
+        for(int i = 0; environ[i] != NULL; i++){
+            printf("%p->environ[%d]=(%p) %s\n", &environ[i], i, environ[i], environ[i]);
         }
         return;
     }

@@ -35,15 +35,15 @@ bool insert4(List4* List4, data4 input){
 
 void updateStatus(Pos4 node){        //SIGNALED WITH ./PRUEBA, IT SHOULD BE FINISHED
     int status;
-    waitpid(node->data.pid, &status, WNOHANG | WUNTRACED | __W_CONTINUED);
+    waitpid(node->data.pid, &status, WNOHANG | WUNTRACED | WCONTINUED);
     if (WIFEXITED(status)){
         strcpy(node->data.status, "FINISHED");
     }else if (WIFSIGNALED(status)){
         strcpy(node->data.status, "SIGNALED");
     }else if (WIFSTOPPED(status)){
         strcpy(node->data.status, "STOPPED");
-    /*}else if (WIFCONTINUED){   According to c manual, we could use this macro, but our system doesn't recognise it
-        strcpy(node->data.status, "ACTIVE");*/
+    }else if (WIFCONTINUED(status)){
+        strcpy(node->data.status, "ACTIVE");
     }
 }
 
