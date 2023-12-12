@@ -23,6 +23,8 @@ bool insert4(List4* List4, data4);
 void printList4(List4 List4);
 bool deleteStatus4(List4* List4, char* status);
 void printByPid(List4 List4, int pid);
+bool deleteByPid(List4* List4, pid_t pid);
+void updateAllStatus(List4 *List4);
 
 
 #endif

@@ -33,7 +33,7 @@ bool insert4(List4* List4, data4 input){
     return true;
 }
 
-void updateStatus(Pos4 node){        //SIGNALED WITH ./PRUEBA, IT SHOULD BE FINISHED
+/*void updateStatus(Pos4 node){        //SIGNALED WITH ./PRUEBA, IT SHOULD BE FINISHED
     int status;
     waitpid(node->data.pid, &status, WNOHANG | WUNTRACED | WCONTINUED);
     if (WIFEXITED(status)){
@@ -45,28 +45,43 @@ void updateStatus(Pos4 node){        //SIGNALED WITH ./PRUEBA, IT SHOULD BE FINI
     }else if (WIFCONTINUED(status)){
         strcpy(node->data.status, "ACTIVE");
     }
-}
+}*/
 
-int getPriority(int pid){
-    errno = 0;
-    int prio = getpriority (PRIO_PROCESS, pid);
-    if(prio == -1 && errno != 0){ //need to check if -1 is from error or from priority
-        perror("Could not get priority");
+
+
+void updateStatus(Pos4 node){
+    int status;
+    pid_t result = waitpid(node->data.pid, &status, WNOHANG | WUNTRACED | WCONTINUED);
+    if (result == 0) {
+        // child has not changed state
+        strcpy(node->data.status, "ACTIVE");
+    } else {
+        // child has changed state
+        if (WIFEXITED(status)){
+            strcpy(node->data.status, "FINISHED");
+        } else if (WIFSIGNALED(status)){
+            strcpy(node->data.status, "SIGNALED");
+        } else if (WIFSTOPPED(status)){
+            strcpy(node->data.status, "STOPPED");
+        }
     }
-    return prio;
 }
 
+void updateAllStatus(List4 *List4){
+    if(*List4 == NULL) return;
+    for (Pos4 p = *List4; p != NULL; p = p->next) {
+        updateStatus(p);
+    }
+}
 
 void printList4(List4 List4){
     if (List4==NULL){
         printf("List is empty\n");
         return;
     }else {
-        printf("%7s%10s%15s%13s%13s\n", "Pid", "Date", "Status", "Priority", "Command");
         Pos4 q;
         for (q = List4; q != NULL; q = q->next) {
-            updateStatus(q);
-            printf("%7d%25s%15s%15d%15s\n", q->data.pid, Date(q->data.date), q->data.status, getPriority(q->data.pid), q->data.cmdline);
+            printf("%7d%20s%15s%5d%15s\n", q->data.pid, Date(q->data.date), q->data.status, getpriority(PRIO_PROCESS, q->data.pid), q->data.cmdline);
         }
     }
 }
@@ -80,7 +95,7 @@ void printByPid(List4 List4, int pid){
     for (q = List4; q != NULL; q = q->next) {
         if(q->data.pid == pid){
             updateStatus(q);
-            printf("%7d%25s%15s%15d%15s\n", q->data.pid, Date(q->data.date), q->data.status, getPriority(q->data.pid), q->data.cmdline);
+            printf("%7d%20s%15s%5d%15s\n", q->data.pid, Date(q->data.date), q->data.status, getpriority(PRIO_PROCESS, q->data.pid), q->data.cmdline);
             return;
         }
     }
@@ -113,14 +128,51 @@ bool delete4(List4* List4, Pos4 node){
 bool deleteStatus4(List4* List4, char* status){
     if(*List4 == NULL) return true;
     if(status == NULL || !strcmp((*List4)->data.status, status)){
-        if(!delete4(List4, NULL)) return false;
+        while(*List4 != NULL){
+            if((status == NULL || !strcmp((*List4)->data.status, status))){
+                if(!delete4(List4, NULL)) return false;
+            } 
+        }
     }
-    else{
-        for (Pos4 q = *List4; q->next!=NULL; q=q->next){ //until points to node before node searched
-            if(status == NULL || !strcmp(q->next->data.status, status)){
-                if(!delete4(List4, q)) return false;
-            }
+    Pos4 q = *List4;
+    while(q != NULL && q->next != NULL){
+        if(status == NULL || !strcmp(q->next->data.status, status)){
+            if(!delete4(List4, q)) return false;
+        } else {
+            q = q->next;
         }
     }
     return true;
+}
+
+
+/*bool deleteStatus4(List4* List4, char* status){
+    if(*List4 == NULL) return true;
+    if(status == NULL || !strcmp((*List4)->data.status, status)){
+        while(*List4 != NULL && (status == NULL || !strcmp((*List4)->data.status, status))){
+            if(!delete4(List4, NULL)) return false;
+        }
+    }
+    Pos4 q = *List4;
+    while(q != NULL && q->next != NULL){
+        if(status == NULL || !strcmp(q->next->data.status, status)){
+            if(!delete4(List4, q)) return false;
+        } else {
+            q = q->next;
+        }
+    }
+    return true;
+}*/
+
+bool deleteByPid(List4* List4, pid_t pid){
+    Pos4 q;
+    if((*List4)->data.pid==pid){
+        q = NULL;
+    }
+    else{
+        for (q = *List4; q->next!=NULL; q=q->next){ //until points to node before node searched
+            if(q->next->data.pid==pid) break;
+        }
+    }
+    return delete4(List4, q);
 }

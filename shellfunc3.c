@@ -101,38 +101,36 @@ void Cmd_showvar(char * tr[], char *envp[]){
 }
 
 
-int CambiarVariable(char * var, char * valor, char *e[]) /*cambia una variable en el entorno que se le pasa como parÃ¡metro*/
-{                                                        /*lo hace directamente, no usa putenv*/
-  int pos;
-  char *aux;
-   
-  if ((pos=BuscarVariable(var,e))==-1)
+int CambiarVariable(char * var, char * valor, char *e[]) {
+    int pos;
+    char *aux;
+
+    if ((pos=BuscarVariable(var,e))==-1)
     return(-1);
- 
-  if ((aux=(char *)malloc(strlen(var)+strlen(valor)+2))==NULL)
-	return -1;
-  strcpy(aux,var);
-  strcat(aux,"=");
-  strcat(aux,valor);
-  e[pos]=aux;
-  return (pos);
+
+    if ((aux=(char *)malloc(strlen(var)+strlen(valor)+2))==NULL)
+    return -1;
+    strcpy(aux,var);
+    strcat(aux,"=");
+    strcat(aux,valor);
+    e[pos]=aux;
+    return (pos);
 }
 
-int SubsVariable(char * var, char* var2, char * valor, char *e[]) /*cambia una variable en el entorno que se le pasa como parÃ¡metro*/
-{                                                        /*lo hace directamente, no usa putenv*/
-  int pos;
-  char *aux;
-   
-  if ((pos=BuscarVariable(var,e))==-1)
+int SubsVariable(char * var, char* var2, char * valor, char *e[]) {
+    int pos;
+    char *aux;
+
+    if ((pos=BuscarVariable(var,e))==-1)
     return(-1);
- 
-  if ((aux=(char *)malloc(strlen(var2)+strlen(valor)+2))==NULL)
-	return -1;
-  strcpy(aux,var2);
-  strcat(aux,"=");
-  strcat(aux,valor);
-  e[pos]=aux;
-  return (pos);
+
+    if ((aux=(char *)malloc(strlen(var2)+strlen(valor)+2))==NULL)
+    return -1;
+    strcpy(aux,var2);
+    strcat(aux,"=");
+    strcat(aux,valor);
+    e[pos]=aux;
+    return (pos);
 }
 
 void Cmd_changevar(char * tr[], char *envp[]){
@@ -198,7 +196,7 @@ void Cmd_showenv (char * tr[], char *envp[]){
     }
 }
 
-void Cmd_fork (char *tr[], List4* proclist){ //queda en standby hasta que tengamos lista de procesos
+void Cmd_fork (char *tr[], List4* proclist){ 
 	pid_t pid;
 	
 	if ((pid=fork())==0){
@@ -207,7 +205,10 @@ void Cmd_fork (char *tr[], List4* proclist){ //queda en standby hasta que tengam
         printList4(*proclist);
 	}
 	else if (pid!=-1)
-		waitpid (pid,NULL,0);
+		if (waitpid(pid, NULL, 0) == -1) {
+            perror("Error waiting for process");
+            return;
+        }
 }
 
 void Cmd_exec (char* tr []){
@@ -218,6 +219,7 @@ void Cmd_exec (char* tr []){
 }
 
 void Cmd_jobs(char* tr[], List4* proclist){
+    updateAllStatus(proclist);
     printList4(*proclist);
     return;
 }
@@ -227,6 +229,7 @@ void Cmd_deljobs(char* tr[], List4* proclist){
         printf("Invalid argument\n");
         return;
     }
+    updateAllStatus(proclist);
     if (!strcmp(tr[0],"-term")){
         deleteStatus4(proclist, "FINISHED");
         return;
@@ -243,7 +246,12 @@ void Cmd_job (char* tr[], List4* proclist){
         return;
     }
     if (!strcmp(tr[0], "-fg")){
-        waitpid(atoi(tr[1]), NULL, 0);
+        int pid = atoi(tr[1]);
+        if (waitpid(pid, NULL, 0) == -1) {
+            perror("Error waiting for process");
+            return;
+        }
+        deleteByPid(proclist, pid);
     }
     else{
         int pid = atoi(tr[0]);
