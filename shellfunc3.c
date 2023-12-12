@@ -68,7 +68,7 @@ int BuscarVariable (char * var, char *e[])  /*busca una variable en el entorno q
     strcat (aux,"=");
 
     while (e[pos]!=NULL)
-        if (!strncmp(e[pos],aux,strlen(aux)))
+        if (!strncmp(e[pos],aux,strlen(var)+1))
             return (pos);
         else 
             pos++;
@@ -103,10 +103,12 @@ void Cmd_showvar(char * tr[], char *envp[]){
 
 int CambiarVariable(char * var, char * valor, char *e[]) {
     int pos;
-    char *aux;
+    
 
     if ((pos=BuscarVariable(var,e))==-1)
     return(-1);
+
+    char *aux;
 
     if ((aux=(char *)malloc(strlen(var)+strlen(valor)+2))==NULL)
     return -1;
@@ -193,7 +195,8 @@ void Cmd_showenv (char * tr[], char *envp[]){
             printf("%p->environ[%d]=(%p) %s\n", &environ[i], i, environ[i], environ[i]);
         }
         return;
-    }
+    } 
+    else printf("Invalid argument\n");
 }
 
 void Cmd_fork (char *tr[], List4* proclist){ 
@@ -202,7 +205,6 @@ void Cmd_fork (char *tr[], List4* proclist){
 	if ((pid=fork())==0){
 		deleteStatus4(proclist, NULL);
 		printf ("ejecutando proceso %d\n", getpid());
-        printList4(*proclist);
 	}
 	else if (pid!=-1)
 		if (waitpid(pid, NULL, 0) == -1) {
@@ -211,7 +213,7 @@ void Cmd_fork (char *tr[], List4* proclist){
         }
 }
 
-void Cmd_exec (char* tr []){
+void Cmd_exec (char* tr []){ //nuestro codigo muere despues, el del profe no. How come?
     if (execvp (tr[0], tr)==-1){
         perror("Could not execute");
         return;
@@ -238,6 +240,7 @@ void Cmd_deljobs(char* tr[], List4* proclist){
         deleteStatus4(proclist, "SIGNALED");
         return;
     }
+    else printf("Invalid argument\n");
 }
 
 void Cmd_job (char* tr[], List4* proclist){
@@ -247,6 +250,10 @@ void Cmd_job (char* tr[], List4* proclist){
     }
     if (!strcmp(tr[0], "-fg")){
         int pid = atoi(tr[1]);
+        if(pid == 0){
+            printf("Invalid argument\n");
+            return;
+        }
         if (waitpid(pid, NULL, 0) == -1) {
             perror("Error waiting for process");
             return;
@@ -255,6 +262,11 @@ void Cmd_job (char* tr[], List4* proclist){
     }
     else{
         int pid = atoi(tr[0]);
+        if(pid == 0){
+            printf("Invalid argument\n");
+            return;
+        }
+        updateAllStatus(proclist);
         printByPid(*proclist,pid);
     }
 }

@@ -31,5 +31,6 @@
 #define MAXDATE 17
 #define MAXDIRNAME 65536
 #define MAXVAR 4096
+#define MAXSHMID 4096
 
 #endif

@@ -61,5 +61,6 @@ void Cmd_jobs(char* tr[], List4* proclist);
 void Cmd_deljobs(char* tr[], List4* proclist);
 void Cmd_job (char* tr[], List4* proclist);
 void Cmd_execute (char* linea, char* tr[], List4* proclist);
+void addShared(List3 *memlist);
 
 #endif

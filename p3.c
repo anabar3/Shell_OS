@@ -26,6 +26,8 @@ int main(int argc, char *argv[], char *envp[]){
 
     List4 proclist;
     createList4(&proclist);
+
+    addShared(&memlist);
     
     while (1) {
         printf("\n-->");

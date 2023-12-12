@@ -50,6 +50,7 @@ bool insert4(List4* List4, data4 input){
 
 
 void updateStatus(Pos4 node){
+    if(!strcmp(node->data.status, "FINISHED") || !strcmp(node->data.status, "SIGNALED")) return;
     int status;
     pid_t result = waitpid(node->data.pid, &status, WNOHANG | WUNTRACED | WCONTINUED);
     if (result == 0) {
@@ -94,7 +95,6 @@ void printByPid(List4 List4, int pid){
     Pos4 q;
     for (q = List4; q != NULL; q = q->next) {
         if(q->data.pid == pid){
-            updateStatus(q);
             printf("%7d%20s%15s%5d%15s\n", q->data.pid, Date(q->data.date), q->data.status, getpriority(PRIO_PROCESS, q->data.pid), q->data.cmdline);
             return;
         }

@@ -25,11 +25,11 @@ void Cmd_malloc (char* tr[], List3* memlist){
         if (!deleteBySize3(memlist, memory)) printf("Can't free that block of memory\n"); //it frees inside the delete function itself
         
     }else{
-        if (atoi(tr[0])==0) { //if it tries to allocate 0 bytes or receives a string
+        if (atoll(tr[0])==0) { //if it tries to allocate 0 bytes or receives a string
             printf ("Invalid argument\n");
             return;
         }
-        size_t memory = (size_t)atoi(tr[0]); 
+        size_t memory = (size_t)atoll(tr[0]);
         void* ptr = malloc(memory);
         if(ptr == NULL){
             perror("Unable to allocate memory");
@@ -46,6 +46,33 @@ void Cmd_malloc (char* tr[], List3* memlist){
     } 
 }
 
+void addShared(List3 *memlist) {
+    struct shmid_ds s;
+    void *p;
+    int id;
+
+    for (id = 0; id < MAXSHMID; id++) {
+        if (shmctl(id, IPC_STAT, &s) == -1) continue;
+
+        p = shmat(id, NULL, SHM_RDONLY);
+        if (p == (void *)-1) continue;
+
+        data3 shareddata = {
+            p,
+            s.shm_segsz,
+            Date(time(NULL)),
+            "shared",
+            id,
+            -1
+        };
+
+        if (!insert3(memlist, shareddata)) {
+            printf("Can't insert\n");
+        }
+
+        shmdt(p);
+    }
+}
 
 void SharedCreate(key_t clave, size_t tam, List3* memlist) {
     void * p;
