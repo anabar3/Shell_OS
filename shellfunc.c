@@ -295,6 +295,32 @@ void Cmd_help (char* tr[]){
                     "-blocks : memory blocks allocated\n-funcs : addresses of functions\n"
                     "-vars : addresses of variables\n-all: everything\n-pmap : shows output of command pmap (or similar)"},
             {"recurse", "n : Calls recursive function n times"},
+
+            {"uid", "uid [-get|-set] [-l] [id] Accesses the credentials of the process running the shell\n"
+            "-get: displays the credentials\n"
+            "-set id: sets the credential to the numeric value id\n"
+            "-set -l id: sets the credential to login id."},
+
+            {"showvar", "showvar var Displays the value and addresses of the environment variable var."},
+
+            {"changevar", "changevar [-a|-e|-p] var value Changes the value of an environment variable\n"
+            "-a: accessed through the third argument of main\n"
+            "-e: accessed through environ\n"
+            "-p: accessed through putenv."},
+
+            {"showenv", "showenv [-environ|-addr] Displays the process environment\n"
+            "-environ: accessed using environ (instead of the third argument of main)\n"
+            "-addr: shows the value and where environ and the 3rd arg main are stored."},
+
+            {"fork", "The shell forks and waits for its child to finish."},
+
+            {"exec", "Executes, without creating a new process, prog with arguments."},
+
+            {"jobs", "List the background processes."},
+
+            {"deljobs", "[-term][-sig] Deletes processes from the process list in the background.\n"
+            "-term: the terminated ones\n-sig: the ones terminated by signal."},
+
             {NULL,NULL}
     };
 
