@@ -33,22 +33,6 @@ bool insert4(List4* List4, data4 input){
     return true;
 }
 
-/*void updateStatus(Pos4 node){        //SIGNALED WITH ./PRUEBA, IT SHOULD BE FINISHED
-    int status;
-    waitpid(node->data.pid, &status, WNOHANG | WUNTRACED | WCONTINUED);
-    if (WIFEXITED(status)){
-        strcpy(node->data.status, "FINISHED");
-    }else if (WIFSIGNALED(status)){
-        strcpy(node->data.status, "SIGNALED");
-    }else if (WIFSTOPPED(status)){
-        strcpy(node->data.status, "STOPPED");
-    }else if (WIFCONTINUED(status)){
-        strcpy(node->data.status, "ACTIVE");
-    }
-}*/
-
-
-
 void updateStatus(Pos4 node){
     if(!strcmp(node->data.status, "FINISHED") || !strcmp(node->data.status, "SIGNALED")) return;
     int status;
@@ -144,25 +128,6 @@ bool deleteStatus4(List4* List4, char* status){
     }
     return true;
 }
-
-
-/*bool deleteStatus4(List4* List4, char* status){
-    if(*List4 == NULL) return true;
-    if(status == NULL || !strcmp((*List4)->data.status, status)){
-        while(*List4 != NULL && (status == NULL || !strcmp((*List4)->data.status, status))){
-            if(!delete4(List4, NULL)) return false;
-        }
-    }
-    Pos4 q = *List4;
-    while(q != NULL && q->next != NULL){
-        if(status == NULL || !strcmp(q->next->data.status, status)){
-            if(!delete4(List4, q)) return false;
-        } else {
-            q = q->next;
-        }
-    }
-    return true;
-}*/
 
 bool deleteByPid(List4* List4, pid_t pid){
     Pos4 q;

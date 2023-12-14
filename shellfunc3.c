@@ -59,7 +59,7 @@ void Cmd_uid(char* tr[]){
     }
 }
 
-int BuscarVariable (char * var, char *e[])  /*busca una variable en el entorno que se le pasa como parÃ¡metro*/
+int BuscarVariable (char * var, char *e[])
 {
     int pos=0;
     char aux[MAXVAR];
@@ -72,7 +72,7 @@ int BuscarVariable (char * var, char *e[])  /*busca una variable en el entorno q
             return (pos);
         else 
             pos++;
-    errno=ENOENT;   /*no hay tal variable*/
+    errno=ENOENT;
     return(-1);
 }
 
@@ -213,7 +213,7 @@ void Cmd_fork (char *tr[], List4* proclist){
         }
 }
 
-void Cmd_exec (char* tr []){ //nuestro codigo muere despues, el del profe no. How come?
+void Cmd_exec (char* tr []){
     if (execvp (tr[0], tr)==-1){
         perror("Could not execute");
         return;
@@ -227,7 +227,7 @@ void Cmd_jobs(char* tr[], List4* proclist){
 }
 
 void Cmd_deljobs(char* tr[], List4* proclist){
-    if (tr[0] == NULL){ //por ahora no hace nada 
+    if (tr[0] == NULL){
         printf("Invalid argument\n");
         return;
     }
@@ -248,7 +248,7 @@ void Cmd_job (char* tr[], List4* proclist){
         printf("Invalid argument\n");
         return;
     }
-    if (!strcmp(tr[0], "-fg")){
+    if (!strcmp(tr[0], "-fg") && tr[1] != NULL){
         int pid = atoi(tr[1]);
         if(pid == 0){
             printf("Invalid argument\n");

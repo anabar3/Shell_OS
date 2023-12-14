@@ -318,6 +318,8 @@ void Cmd_help (char* tr[]){
 
             {"jobs", "List the background processes."},
 
+            {"job", "[-fg] pid : Prints the information of a background process.\n-fg: brings the process to the foreground."},
+
             {"deljobs", "[-term][-sig] Deletes processes from the process list in the background.\n"
             "-term: the terminated ones\n-sig: the ones terminated by signal."},
 
